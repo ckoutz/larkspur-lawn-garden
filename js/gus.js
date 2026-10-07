@@ -375,6 +375,13 @@
             confirmed ? "Keep chatting, or ask me to move or cancel it." : "Larkspur confirms every visit. You can keep chatting meanwhile.",
           ),
         );
+        if (confirmed && window.LarkspurBookCall) {
+          const call = el("a", "gus-call", "Like it? Book a call with Güd Vector");
+          call.href = window.LarkspurBookCall;
+          call.target = "_blank";
+          call.rel = "noopener";
+          this.banner.append(call);
+        }
         this.banner.hidden = false;
       } else {
         this.banner.hidden = true;

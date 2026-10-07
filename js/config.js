@@ -6,4 +6,6 @@ window.LARKSPUR = {
   businessKey: "gvb_ANFmibma_UEm3Z_HJg44Ow",
   sandbox: true,
   dashboardOrigin: "https://larkspur-dashboard.vercel.app",
+  // Güd Vector's booking page. Empty hides "Book a call with Güd Vector".
+  bookCallUrl: "",
 };

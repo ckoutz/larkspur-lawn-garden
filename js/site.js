@@ -1,5 +1,21 @@
-// Mobile menu and the sign-in form.
+// Mobile menu, the sign-in form and the "Book a call with Güd Vector" links.
 (function () {
+  let callHref = null;
+  try {
+    const url = new URL(window.LARKSPUR.bookCallUrl);
+    url.searchParams.set("utm_source", "larkspur-demo");
+    callHref = url.toString();
+  } catch {
+    // No booking page yet: the links stay hidden.
+  }
+  window.LarkspurBookCall = callHref;
+  if (callHref) {
+    document.querySelectorAll("[data-book-call]").forEach((block) => {
+      block.querySelector("a").href = callHref;
+      block.hidden = false;
+    });
+  }
+
   const menuBtn = document.querySelector(".menu-btn");
   const menu = document.getElementById("mobile-nav");
   if (menuBtn && menu) {
