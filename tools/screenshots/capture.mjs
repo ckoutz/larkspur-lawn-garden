@@ -7,11 +7,13 @@
 // It books one fictional walk-through through the real Gus chat and leaves it
 // waiting under Needs you; it never approves, pays or sends anything.
 import { mkdirSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 const site = process.env.SITE_URL ?? "https://larkspur-lawn-garden.netlify.app";
 const dashboard = process.env.DASHBOARD_URL ?? "https://larkspur-dashboard.vercel.app";
-const out = process.env.OUT_DIR ?? "shots";
+// Netlify publishes this whole repo, so images go next to it, not inside it.
+const out = process.env.OUT_DIR ?? fileURLToPath(new URL("../../../larkspur-shots", import.meta.url));
 const link = process.env.SIGN_IN_LINK;
 if (!link) throw new Error("SIGN_IN_LINK is required (from gvas-seed-demo --sign-in-link)");
 mkdirSync(out, { recursive: true });

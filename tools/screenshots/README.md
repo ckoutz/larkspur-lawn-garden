@@ -19,6 +19,7 @@ sent) and the owner approval under Needs you.
    SIGN_IN_LINK='<link>' npm run capture
    ```
 
-Images go to `shots/` (`OUT_DIR` to change it, `SCALE=1` for 1×). The run books
+Images go to `larkspur-shots/` next to the repo, outside the published site
+(`OUT_DIR` to change it, `SCALE=1` for 1×). The run books
 one fictional walk-through through the real Gus chat and leaves it under Needs
 you. It never approves, pays or sends anything.
