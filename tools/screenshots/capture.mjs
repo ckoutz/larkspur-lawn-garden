@@ -79,8 +79,8 @@ await shoot("4-manual-plan", async () => {
 const answers = [
   [/urgent|emergency/i, "Routine, no rush."],
   [/name/i, "I'm Maya Chen."],
+  [/how big|size|square|how large/i, "The backyard is about 900 square feet."],
   [/email|e-mail|phone|contact|reach/i, "maya.chen@example.com, 510-555-0163."],
-  [/how big|size|square|yard/i, "The backyard is about 900 square feet."],
   [/service|which|what kind/i, "A backyard garden redesign: native planting beds and a gravel seating area."],
   [/address|where|located/i, "88 Linden Street, Berkeley."],
 ];
