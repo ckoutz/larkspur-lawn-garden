@@ -28,3 +28,10 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
     Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://web-demo-5831.up.railway.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+
+# The screenshot tool lives in the repo but is not part of the site.
+[[redirects]]
+  from = "/tools/*"
+  to = "/404.html"
+  status = 404
+  force = true
