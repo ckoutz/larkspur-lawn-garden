@@ -1,7 +1,8 @@
 # Güd Office screenshots
 
 Captures six screens of the Larkspur demo at phone (390×844) and desktop
-(1440×900) size, at 2× pixel density: owner home, quotes, a quote with Mark
+(1440×900) size, at 2× pixel density: owner home, quotes (the week's calendar
+on the phone, where the Quotes table scrolls sideways), a quote with Mark
 paid, the check/cash monthly plan, the Gus booking chat (openings, then request
 sent) and the owner approval under Needs you.
 
