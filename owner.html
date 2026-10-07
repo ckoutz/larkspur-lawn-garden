@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Book a free estimate · Larkspur Lawn & Garden</title>
-<meta name="description" content="Fictional demo business: chat with Gus to book a free walk-through.">
+<title>Owner view · Larkspur Lawn & Garden</title>
+<meta name="description" content="Fictional demo business: try Larkspur's owner dashboard, powered by Güd Office.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="images/mark.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,15 +12,15 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
 <link rel="stylesheet" href="css/site.css">
 </head>
-<body data-no-launcher>
+<body>
 <a class="skip" href="#main">Skip to content</a>
 <div class="topbar"><span>Serving the East Bay since 2009</span><span>Licensed &amp; insured</span><span>Free estimates, usually within 2 business days</span></div>
 <header class="wrap header">
   <a class="brand" href="index.html" aria-label="Larkspur Lawn &amp; Garden, home"><svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="10" fill="#2F6B3F"/><path d="M20 31V16M20 22c-5 0-8-3-8-8 5 0 8 3 8 8zM20 19c0-4 3-7 8-7 0 5-3 7-8 7z" stroke="#F7F8F4" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="brand-name">Larkspur <span>Lawn &amp; Garden</span></span></a>
   <nav class="nav" aria-label="Main">
-    <a href="services.html">Services</a><a href="index.html#work">Our work</a><a href="index.html#reviews">Reviews</a><a href="index.html#about">About</a><a href="owner.html">Owner view</a>
+    <a href="services.html">Services</a><a href="index.html#work">Our work</a><a href="index.html#reviews">Reviews</a><a href="index.html#about">About</a><a href="owner.html" aria-current="page">Owner view</a>
     <a href="signin.html">Sign in</a>
-    <a class="btn btn-primary" href="book.html" aria-current="page">Book an estimate</a>
+    <a class="btn btn-primary" href="book.html">Book an estimate</a>
   </nav>
   <div class="header-actions">
     <a href="signin.html">Sign in</a>
@@ -31,22 +31,21 @@
     <a class="btn btn-primary" href="book.html">Book an estimate</a>
   </nav>
 </header>
-<main id="main" class="wrap book">
-  <div class="book-copy">
-    <h1>Book a free estimate</h1>
-    <p>Tell Gus about your yard and pick a time for a walk-through. Larkspur confirms every visit by email, then sends a written quote within two business days.</p>
-    <ul class="checks">
-      <li><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span>No cost, no obligation</li>
-      <li><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span>Approve and pay your quote online</li>
-      <li><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span>Same crew every visit</li>
-    </ul>
-    <div class="owner-try">
-      <p><b>Then see it as the owner.</b> Your request shows up in Larkspur's dashboard under "Needs you", where you can approve it.</p>
-      <button class="btn btn-outline" type="button" data-owner-view aria-describedby="owner-try-status">Try the owner view</button>
-      <p class="notice error" id="owner-try-status" role="alert" hidden></p>
-    </div>
+<main id="main" class="wrap owner">
+  <span class="chip">Powered by Güd Office</span>
+  <h1>Run Larkspur for a while</h1>
+  <p class="lede">This is the dashboard Larkspur's owner uses: requests waiting on them, the week's calendar, quotes and payments. You get your own copy, filled with a made-up week.</p>
+  <ol class="owner-steps">
+    <li><b>Book as a customer.</b> <a href="book.html">Chat with Gus</a> and pick a walk-through time.</li>
+    <li><b>Switch to the owner.</b> Your request is waiting under "Needs you". Approve it, and Gus tells the customer.</li>
+    <li><b>Click around.</b> Calendar, quotes, Mark paid. Nothing is sent to anyone.</li>
+  </ol>
+  <div class="owner-actions">
+    <button class="btn btn-primary btn-lg" type="button" data-owner-view aria-describedby="owner-view-status">Open the owner view</button>
+    <a class="btn btn-outline btn-lg" href="book.html">Chat with Gus first</a>
   </div>
-  <div class="book-chat" data-gus-inline></div>
+  <p class="notice error" id="owner-view-status" role="alert" hidden></p>
+  <p class="notice">Larkspur is a fictional business, and in the chat you play Sam Rivera, so you never type your own details. Your copy, and everything you typed, is deleted 2 hours after your last click. What you type to Gus is processed by an AI provider. Card payments are switched off: Mark paid only records a payment.</p>
 </main>
 <footer class="footer">
   <div class="wrap">

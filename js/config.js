@@ -1,7 +1,9 @@
-// The GVAS demo backend this site talks to. The business key is public by
-// design: it only lets visitors start a booking chat and request a sign-in link.
+// The GVAS demo backend this site talks to. With `sandbox` on, every visitor
+// gets their own copy of Larkspur (js/sandbox.js); `businessKey` is the shared
+// demo business, used only where the backend has sandboxes off.
 window.LARKSPUR = {
   apiUrl: "https://web-demo-5831.up.railway.app",
   businessKey: "gvb_ANFmibma_UEm3Z_HJg44Ow",
-  dashboardUrl: "https://larkspur-dashboard.vercel.app/portal/login",
+  sandbox: true,
+  dashboardOrigin: "https://larkspur-dashboard.vercel.app",
 };

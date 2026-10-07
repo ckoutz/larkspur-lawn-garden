@@ -78,6 +78,7 @@
   }
 
   function errorCopy(err) {
+    if (window.LarkspurSandbox && err instanceof window.LarkspurSandbox.SandboxError) return err.message;
     if (err instanceof HttpError) {
       if (err.status === 429) return "Too many messages. Please try again in a minute.";
       if (err.status >= 500) return "Gus is unavailable right now. Please try again shortly.";
@@ -194,7 +195,17 @@
       this.consent.addEventListener("change", () => writeConsent(this.consent.checked));
       consent.append(this.consent, consentLabel);
 
-      this.root.append(this.banner, this.log, this.form, consent);
+      // Only a visitor's own copy knows Sam; the shared demo business still asks.
+      const demo = el("div", "gus-demo");
+      this.samLine = el("span");
+      this.samLine.append(
+        el("b", null, "You're Sam Rivera, a homeowner in Oakland. "),
+        "Gus already has Sam's contact details, so just tell him about the yard. ",
+      );
+      this.samLine.hidden = true;
+      demo.append(this.samLine, "Larkspur is a fictional business.");
+
+      this.root.append(this.banner, demo, this.log, this.form, consent);
     }
 
     async boot() {
@@ -203,12 +214,14 @@
       this.render();
       try {
         const stored = readStored();
+        if (stored) this.samLine.hidden = !stored.sam;
         if (stored && (await this.resume(stored))) return;
-        const res = await api(`/v1/businesses/${enc(cfg.businessKey)}/intake/conversations`, {
-          method: "POST",
-          body: {},
-        });
-        this.stored = { conversationId: res.conversationId, conversationToken: res.conversationToken };
+        const res = await this.startConversation();
+        this.stored = {
+          conversationId: res.conversationId,
+          conversationToken: res.conversationToken,
+          sam: !this.samLine.hidden,
+        };
         writeStored(this.stored);
         this.state = res.state;
         this.slots = res.slots;
@@ -221,6 +234,20 @@
         this.phase = "error";
       }
       this.render();
+    }
+
+    async startConversation() {
+      const sandbox = window.LarkspurSandbox;
+      for (let attempt = 0; ; attempt += 1) {
+        const key = sandbox ? await sandbox.businessKey() : cfg.businessKey;
+        this.samLine.hidden = key === cfg.businessKey;
+        try {
+          return await api(`/v1/businesses/${enc(key)}/intake/conversations`, { method: "POST", body: {} });
+        } catch (err) {
+          if (!sandbox || attempt > 0 || !(err instanceof HttpError && err.status === 404)) throw err;
+          sandbox.forget();
+        }
+      }
     }
 
     async resume(stored) {
@@ -357,14 +384,14 @@
       if (this.phase === "booting" && this.messages.length === 0) {
         nodes.push(el("p", "gus-muted", "Starting your conversation…"));
       }
-      for (const m of this.messages) {
+      this.messages.forEach((m) => {
         const row = el("div", `gus-row ${m.role}`);
         const bubble = el("div", "gus-bubble");
         if (m.role === "owner") bubble.append(el("span", "gus-owner-label", "Larkspur"));
         bubble.append(document.createTextNode(m.content));
         row.append(bubble);
         nodes.push(row);
-      }
+      });
       if (this.phase === "sending") {
         const row = el("div", "gus-row agent");
         const dots = el("div", "gus-typing");
