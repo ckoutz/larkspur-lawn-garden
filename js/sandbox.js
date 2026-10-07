@@ -48,6 +48,8 @@
   // demo business is used then).
   function ensure() {
     if (!cfg.sandbox) return Promise.resolve(null);
+    // Another tab may have made the copy since this page loaded.
+    current = current || read();
     if (current) return Promise.resolve(current);
     if (!creating) {
       creating = (async () => {
@@ -55,6 +57,9 @@
         if (res.status === 404) return null;
         if (!res.ok) throw new SandboxError(res.status);
         const body = await res.json();
+        // Two tabs that both started without a copy: the first one saved wins.
+        const saved = read();
+        if (saved) return (current = saved);
         current = { publicKey: body.publicKey, sandboxToken: body.sandboxToken };
         write(current);
         return current;

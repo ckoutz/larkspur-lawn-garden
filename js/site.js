@@ -29,8 +29,10 @@
       status.hidden = true;
       status.className = "notice";
       try {
+        // Customers booked through Gus are on file in the visitor's own copy.
+        const key = window.LarkspurSandbox ? await window.LarkspurSandbox.businessKey() : cfg.businessKey;
         const res = await fetch(
-          `${cfg.apiUrl}/v1/businesses/${encodeURIComponent(cfg.businessKey)}/portal/login`,
+          `${cfg.apiUrl}/v1/businesses/${encodeURIComponent(key)}/portal/login`,
           {
             method: "POST",
             headers: { "content-type": "application/json", accept: "application/json" },
