@@ -117,18 +117,9 @@ await shoot("4-manual-plan", async () => {
   await sectionTop("Monthly plans");
 });
 
-// The owner approval: the new request under Needs you, not approved.
-await shoot("6-owner-approval", async () => {
-  await open("/portal/owner");
-  const item = page
-    .locator("li", { hasText: "Maya" })
-    .filter({ has: page.getByRole("button", { name: "Approve booking" }) })
-    .first();
-  await item.waitFor({ timeout: 30000 });
-  // Scroll only when the request is off screen, so the top bar isn't cut off.
-  const box = await item.boundingBox();
-  if (box.y + box.height > page.viewportSize().height) await scrollTo(item);
-});
+// Shot 1 already shows the request waiting with Approve booking, so there is no
+// separate approval shot; clear the one an earlier run left.
+for (const [size] of sizes) rmSync(`${out}/6-owner-approval-${size}.png`, { force: true });
 
 await context.close();
 await browser.close();
