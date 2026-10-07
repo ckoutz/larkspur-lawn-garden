@@ -202,7 +202,7 @@
         el("b", null, "You're Sam Rivera, a homeowner in Oakland. "),
         "Gus already has Sam's contact details, so just tell him about the yard. ",
       );
-      this.samLine.hidden = !(cfg.sandbox && window.LarkspurSandbox);
+      this.samLine.hidden = true;
       demo.append(this.samLine, "Larkspur is a fictional business.");
 
       this.root.append(this.banner, demo, this.log, this.form, consent);
@@ -214,9 +214,14 @@
       this.render();
       try {
         const stored = readStored();
+        if (stored) this.samLine.hidden = !stored.sam;
         if (stored && (await this.resume(stored))) return;
         const res = await this.startConversation();
-        this.stored = { conversationId: res.conversationId, conversationToken: res.conversationToken };
+        this.stored = {
+          conversationId: res.conversationId,
+          conversationToken: res.conversationToken,
+          sam: !this.samLine.hidden,
+        };
         writeStored(this.stored);
         this.state = res.state;
         this.slots = res.slots;
