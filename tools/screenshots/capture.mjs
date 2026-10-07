@@ -59,6 +59,13 @@ const sectionTop = async (heading) => {
   await scrollTo(page.getByText(heading, { exact: true }).first(), "start");
   await page.evaluate(() => scrollBy(0, -24));
 };
+// Ends the shot just below the section, so the next card's top doesn't peek in.
+const sectionBottom = async (heading) => {
+  await page.getByText(heading, { exact: true }).first().evaluate((el) => {
+    const { bottom } = el.closest("section").getBoundingClientRect();
+    scrollBy(0, bottom + 16 - innerHeight);
+  });
+};
 
 await page.goto(link);
 await page.waitForURL(/\/portal\/owner/, { timeout: 30000 });
@@ -66,6 +73,9 @@ await page.waitForURL(/\/portal\/owner/, { timeout: 30000 });
 // The booking chat comes first, so Maya's request shows in every dashboard
 // shot: a real conversation with Gus until he offers openings.
 const answers = [
+  // "I have your details. Would you like to choose a time…?" mentions contact
+  // details too, so it is answered before the contact pattern sees it.
+  [/(would you like|want) to (choose|pick|book|see)[^?]*time/i, "Yes, please."],
   [/urgent|emergency/i, "Routine, no rush."],
   [/name/i, "I'm Maya Chen."],
   [/how big|size|square|how large/i, "The backyard is about 900 square feet."],
@@ -108,9 +118,12 @@ await shoot("2-calendar", async () => {
   await page.evaluate(() => scrollBy(0, -24));
 }, "phone");
 await shoot("2-quotes", () => open("/portal/owner/quotes"), "desktop");
-await shoot("3-quote-mark-paid", async () => {
+await shoot("3-quote-mark-paid", async (size) => {
   await open("/portal/owner/quotes");
-  await sectionTop("Waiting for payment");
+  // On the phone the section is shorter than the screen and the Quotes table
+  // (which scrolls sideways there) would show below it.
+  if (size === "phone") await sectionBottom("Waiting for payment");
+  else await sectionTop("Waiting for payment");
 });
 await shoot("4-manual-plan", async () => {
   await open("/portal/owner/quotes");
