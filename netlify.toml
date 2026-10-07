@@ -2,6 +2,24 @@
   publish = "."
   command = ""
 
+# Links GVAS e-mails point at this site (site_url): customer sign-in
+# (/portal/login?token=…), the portal and quote pages live on the Larkspur
+# dashboard. Netlify keeps the query string.
+[[redirects]]
+  from = "/portal"
+  to = "https://larkspur-dashboard.vercel.app/portal"
+  status = 302
+
+[[redirects]]
+  from = "/portal/*"
+  to = "https://larkspur-dashboard.vercel.app/portal/:splat"
+  status = 302
+
+[[redirects]]
+  from = "/q/*"
+  to = "https://larkspur-dashboard.vercel.app/q/:splat"
+  status = 302
+
 [[headers]]
   for = "/*"
   [headers.values]

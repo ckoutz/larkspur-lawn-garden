@@ -157,7 +157,12 @@
         const text = this.input.value.trim();
         if (!text) return;
         this.input.value = "";
-        this.send(text);
+        this.send(text).then((sent) => {
+          if (!sent && this.phase === "ready" && !this.input.value) {
+            this.input.value = text;
+            this.renderControls();
+          }
+        });
       });
       this.input.addEventListener("input", () => this.renderControls());
 
@@ -167,6 +172,11 @@
       this.consent.id = `${id}-sms`;
       const consentLabel = el("label", null, SMS_COPY);
       consentLabel.htmlFor = this.consent.id;
+      this.consent.addEventListener("change", () => {
+        if (!this.stored) return;
+        this.stored = { ...this.stored, smsConsent: this.consent.checked };
+        writeStored(this.stored);
+      });
       consent.append(this.consent, consentLabel);
 
       this.root.append(this.banner, this.log, this.form, consent);
@@ -204,6 +214,7 @@
           token: stored.conversationToken,
         });
         this.stored = stored;
+        this.consent.checked = Boolean(stored.smsConsent);
         this.applyView(res);
         this.greeting = res.booking ? { role: "agent", content: returningGreeting(res.booking) } : null;
         if (this.greeting) this.messages.push(this.greeting);
@@ -227,7 +238,7 @@
     }
 
     async send(message, echo = message) {
-      if (!this.stored || this.phase === "sending") return;
+      if (!this.stored || this.phase === "sending") return false;
       const previousSlots = this.slots;
       const echoed = { role: "user", content: echo };
       this.messages.push(echoed);
@@ -248,6 +259,7 @@
         this.phase = "ready";
         this.render();
         if (!this.input.disabled) this.input.focus();
+        return true;
       } catch (err) {
         if (err instanceof HttpError && err.status === 401) {
           writeStored(null);
@@ -259,6 +271,7 @@
           this.phase = "ready";
         }
         this.render();
+        return false;
       }
     }
 
@@ -270,6 +283,7 @@
       this.slots = null;
       this.booking = null;
       this.greeting = null;
+      this.consent.checked = false;
       this.boot();
     }
 
@@ -286,17 +300,18 @@
     }
 
     async poll() {
-      if (this.phase !== "ready" || !this.stored) return;
+      const stored = this.stored;
+      if (this.phase !== "ready" || !stored) return;
       try {
-        const res = await api(`/v1/intake/conversations/${enc(this.stored.conversationId)}`, {
-          token: this.stored.conversationToken,
+        const res = await api(`/v1/intake/conversations/${enc(stored.conversationId)}`, {
+          token: stored.conversationToken,
         });
-        if (this.phase !== "ready") return;
+        if (this.stored !== stored || this.phase !== "ready") return;
         this.applyView(res);
         if (this.greeting) this.messages.push(this.greeting);
         this.render();
       } catch (err) {
-        if (err instanceof HttpError && err.status === 401) {
+        if (this.stored === stored && err instanceof HttpError && err.status === 401) {
           writeStored(null);
           this.phase = "expired";
           this.render();
