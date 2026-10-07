@@ -3,6 +3,7 @@
 (function () {
   const cfg = window.LARKSPUR;
   const STORAGE_KEY = "larkspur_gus_conversation";
+  const CONSENT_KEY = "larkspur_gus_sms_consent";
   const POLL_MS = 10000;
   const SLOT_PREFIX = "slot:";
   const SMS_COPY =
@@ -93,6 +94,23 @@
       return null;
     }
   }
+  // The SMS opt-in is kept apart from the conversation so ticking it before the
+  // chat has started, or while a poll is in flight, is never lost.
+  function readConsent() {
+    try {
+      return sessionStorage.getItem(CONSENT_KEY) === "1";
+    } catch {
+      return false;
+    }
+  }
+  function writeConsent(checked) {
+    try {
+      if (checked) sessionStorage.setItem(CONSENT_KEY, "1");
+      else sessionStorage.removeItem(CONSENT_KEY);
+    } catch {
+      // private mode: the box still works for this page
+    }
+  }
   function writeStored(value) {
     try {
       if (value) sessionStorage.setItem(STORAGE_KEY, JSON.stringify(value));
@@ -172,11 +190,8 @@
       this.consent.id = `${id}-sms`;
       const consentLabel = el("label", null, SMS_COPY);
       consentLabel.htmlFor = this.consent.id;
-      this.consent.addEventListener("change", () => {
-        if (!this.stored) return;
-        this.stored = { ...this.stored, smsConsent: this.consent.checked };
-        writeStored(this.stored);
-      });
+      this.consent.checked = readConsent();
+      this.consent.addEventListener("change", () => writeConsent(this.consent.checked));
       consent.append(this.consent, consentLabel);
 
       this.root.append(this.banner, this.log, this.form, consent);
@@ -214,7 +229,6 @@
           token: stored.conversationToken,
         });
         this.stored = stored;
-        this.consent.checked = Boolean(stored.smsConsent);
         this.applyView(res);
         this.greeting = res.booking ? { role: "agent", content: returningGreeting(res.booking) } : null;
         if (this.greeting) this.messages.push(this.greeting);
@@ -284,6 +298,7 @@
       this.booking = null;
       this.greeting = null;
       this.consent.checked = false;
+      writeConsent(false);
       this.boot();
     }
 
@@ -306,12 +321,12 @@
         const res = await api(`/v1/intake/conversations/${enc(stored.conversationId)}`, {
           token: stored.conversationToken,
         });
-        if (this.stored !== stored || this.phase !== "ready") return;
+        if (this.stored?.conversationId !== stored.conversationId || this.phase !== "ready") return;
         this.applyView(res);
         if (this.greeting) this.messages.push(this.greeting);
         this.render();
       } catch (err) {
-        if (this.stored === stored && err instanceof HttpError && err.status === 401) {
+        if (this.stored?.conversationId === stored.conversationId && err instanceof HttpError && err.status === 401) {
           writeStored(null);
           this.phase = "expired";
           this.render();
