@@ -4,8 +4,9 @@
 //
 //   SIGN_IN_LINK='https://…/portal/login?token=…' node capture.mjs
 //
-// It books one fictional walk-through through the real Gus chat and leaves it
-// waiting under Needs you; it never approves, pays or sends anything.
+// It first books one fictional walk-through through the real Gus chat and
+// leaves it waiting under Needs you, so every dashboard shot shows it; it never
+// approves, pays or sends anything.
 import { mkdirSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
@@ -62,24 +63,8 @@ const sectionTop = async (heading) => {
 await page.goto(link);
 await page.waitForURL(/\/portal\/owner/, { timeout: 30000 });
 
-await shoot("1-owner-home", () => open("/portal/owner"));
-// The phone Quotes table scrolls sideways, so the phone gets the week's calendar.
-await shoot("2-calendar", async () => {
-  await open("/portal/owner/calendar");
-  await scrollTo(page.locator("main h2").first(), "start");
-  await page.evaluate(() => scrollBy(0, -24));
-}, "phone");
-await shoot("2-quotes", () => open("/portal/owner/quotes"), "desktop");
-await shoot("3-quote-mark-paid", async () => {
-  await open("/portal/owner/quotes");
-  await sectionTop("Waiting for payment");
-});
-await shoot("4-manual-plan", async () => {
-  await open("/portal/owner/quotes");
-  await sectionTop("Monthly plans");
-});
-
-// The booking chat: a real conversation with Gus until he offers openings.
+// The booking chat comes first, so Maya's request shows in every dashboard
+// shot: a real conversation with Gus until he offers openings.
 const answers = [
   [/urgent|emergency/i, "Routine, no rush."],
   [/name/i, "I'm Maya Chen."],
@@ -115,6 +100,23 @@ await page.click(".gus-slot");
 await page.waitForSelector(".gus-typing", { state: "detached", timeout: 90000 });
 await shoot("5b-gus-request-sent", framechat);
 
+await shoot("1-owner-home", () => open("/portal/owner"));
+// The phone Quotes table scrolls sideways, so the phone gets the week's calendar.
+await shoot("2-calendar", async () => {
+  await open("/portal/owner/calendar");
+  await scrollTo(page.locator("main h2").first(), "start");
+  await page.evaluate(() => scrollBy(0, -24));
+}, "phone");
+await shoot("2-quotes", () => open("/portal/owner/quotes"), "desktop");
+await shoot("3-quote-mark-paid", async () => {
+  await open("/portal/owner/quotes");
+  await sectionTop("Waiting for payment");
+});
+await shoot("4-manual-plan", async () => {
+  await open("/portal/owner/quotes");
+  await sectionTop("Monthly plans");
+});
+
 // The owner approval: the new request under Needs you, not approved.
 await shoot("6-owner-approval", async () => {
   await open("/portal/owner");
@@ -123,7 +125,9 @@ await shoot("6-owner-approval", async () => {
     .filter({ has: page.getByRole("button", { name: "Approve booking" }) })
     .first();
   await item.waitFor({ timeout: 30000 });
-  await scrollTo(item);
+  // Scroll only when the request is off screen, so the top bar isn't cut off.
+  const box = await item.boundingBox();
+  if (box.y + box.height > page.viewportSize().height) await scrollTo(item);
 });
 
 await context.close();
