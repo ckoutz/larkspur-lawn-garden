@@ -155,10 +155,12 @@
     const hints = new Map();
     const shown = { address: false, phone: false, email: false };
     messages.forEach((m, i) => {
-      if (m.role !== "agent" || !m.content.includes("?")) return;
-      const address = !shown.address && asksAddress(m.content);
-      const phone = !shown.phone && asksPhone(m.content);
-      const email = !shown.email && asksEmail(m.content);
+      // Only the questions count: "I'll e-mail you a confirmation." asks for nothing.
+      const asked = m.role === "agent" ? (m.content.match(/[^.!?]*\?/g) || []).join(" ") : "";
+      if (!asked) return;
+      const address = !shown.address && asksAddress(asked);
+      const phone = !shown.phone && asksPhone(asked);
+      const email = !shown.email && asksEmail(asked);
       Object.assign(shown, { address: shown.address || address, phone: shown.phone || phone, email: shown.email || email });
       const madeUp = [address && "your address", phone && "your phone number"].filter(Boolean);
       const parts = [];
