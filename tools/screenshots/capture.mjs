@@ -75,7 +75,7 @@ await page.waitForURL(/\/portal\/owner/, { timeout: 30000 });
 const answers = [
   // "I have your details. Would you like to choose a time…?" mentions contact
   // details too, so it is answered before the contact pattern sees it.
-  [/(would you like|want) to (choose|pick|book|see)[^?]*time/i, "Yes, please."],
+  [/(would you like|want) to (choose|pick|book|see|request|schedule)[^?]*(time|walk-through|visit)/i, "Yes, please."],
   [/urgent|emergency/i, "Routine, no rush."],
   [/name/i, "I'm Maya Chen."],
   [/how big|size|square|how large/i, "The backyard is about 900 square feet."],
