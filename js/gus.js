@@ -78,6 +78,7 @@
   }
 
   function errorCopy(err) {
+    if (window.LarkspurSandbox && err instanceof window.LarkspurSandbox.SandboxError) return err.message;
     if (err instanceof HttpError) {
       if (err.status === 429) return "Too many messages. Please try again in a minute.";
       if (err.status >= 500) return "Gus is unavailable right now. Please try again shortly.";
@@ -125,6 +126,21 @@
     if (className) node.className = className;
     if (text != null) node.textContent = text;
     return node;
+  }
+
+  // Made-up answers for "Fill in example details", picked from Gus's last question.
+  const EXAMPLES = [
+    [/(would you like|want) to (choose|pick|book|see|request|schedule)|open times|see .*times/i, "Yes, please."],
+    [/e-?mail|phone|contact|reach you/i, "Sam Rivera, sam.rivera@example.com, (510) 555-0199."],
+    [/name/i, "I'm Sam Rivera."],
+    [/how big|size|square|how large|acre/i, "The backyard is about 900 square feet."],
+    [/address|where|located|neighborhood|city/i, "12 Oak Avenue, Oakland."],
+  ];
+  const FIRST_EXAMPLE =
+    "Hi! We'd like to redesign our backyard with native planting beds and a small gravel seating area. We're at 12 Oak Avenue, Oakland.";
+  function exampleAnswer(question) {
+    const hit = EXAMPLES.find(([pattern]) => pattern.test(question));
+    return hit ? hit[1] : FIRST_EXAMPLE;
   }
 
   const enc = encodeURIComponent;
@@ -194,7 +210,18 @@
       this.consent.addEventListener("change", () => writeConsent(this.consent.checked));
       consent.append(this.consent, consentLabel);
 
-      this.root.append(this.banner, this.log, this.form, consent);
+      const demo = el("div", "gus-demo");
+      demo.append(el("span", null, "Larkspur is a fictional business. Please don't enter real details."));
+      this.exampleBtn = el("button", "gus-link", "Fill in example details");
+      this.exampleBtn.type = "button";
+      this.exampleBtn.addEventListener("click", () => {
+        this.input.value = exampleAnswer(this.lastAgentMessage());
+        this.renderControls();
+        this.input.focus();
+      });
+      demo.append(" ", this.exampleBtn);
+
+      this.root.append(this.banner, demo, this.log, this.form, consent);
     }
 
     async boot() {
@@ -204,10 +231,7 @@
       try {
         const stored = readStored();
         if (stored && (await this.resume(stored))) return;
-        const res = await api(`/v1/businesses/${enc(cfg.businessKey)}/intake/conversations`, {
-          method: "POST",
-          body: {},
-        });
+        const res = await this.startConversation();
         this.stored = { conversationId: res.conversationId, conversationToken: res.conversationToken };
         writeStored(this.stored);
         this.state = res.state;
@@ -221,6 +245,19 @@
         this.phase = "error";
       }
       this.render();
+    }
+
+    async startConversation() {
+      const sandbox = window.LarkspurSandbox;
+      for (let attempt = 0; ; attempt += 1) {
+        const key = sandbox ? await sandbox.businessKey() : cfg.businessKey;
+        try {
+          return await api(`/v1/businesses/${enc(key)}/intake/conversations`, { method: "POST", body: {} });
+        } catch (err) {
+          if (!sandbox || attempt > 0 || !(err instanceof HttpError && err.status === 404)) throw err;
+          sandbox.forget();
+        }
+      }
     }
 
     async resume(stored) {
@@ -427,6 +464,13 @@
       return card;
     }
 
+    lastAgentMessage() {
+      for (let i = this.messages.length - 1; i >= 0; i -= 1) {
+        if (this.messages[i].role === "agent") return this.messages[i].content;
+      }
+      return "";
+    }
+
     renderControls() {
       const terminal = Boolean(TERMINAL[this.state]);
       const disabled = this.phase !== "ready" || terminal || this.state === "proposing_slots";
@@ -437,6 +481,7 @@
           ? "Pick a time above."
           : "Type your reply…";
       this.sendBtn.disabled = disabled || !this.input.value.trim();
+      this.exampleBtn.disabled = disabled;
     }
   }
 

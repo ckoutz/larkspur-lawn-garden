@@ -21,8 +21,6 @@
     const cfg = window.LARKSPUR;
     const status = document.getElementById("signin-status");
     const button = form.querySelector("button[type=submit]");
-    const owner = document.getElementById("owner-dashboard");
-    if (owner) owner.href = cfg.dashboardUrl;
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const email = form.email.value.trim();

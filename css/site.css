@@ -275,3 +275,21 @@ button, input, textarea { font: inherit; }
   .about-copy h2 { font-size: 30px; }
   .service-list { gap: 14px; padding-bottom: 40px; }
 }
+
+/* Owner view (the per-visitor demo dashboard) */
+.owner { display: flex; flex-direction: column; gap: 20px; max-width: 760px; padding-top: 24px; padding-bottom: 80px; }
+.owner h1 { font-weight: 800; font-size: 56px; line-height: 1.05; letter-spacing: -.025em; }
+.owner-steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; font-size: 18px; color: var(--muted); }
+.owner-steps b { color: var(--ink); }
+.owner-steps a, .owner .notice a { color: var(--green-dark); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.owner-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.owner-try { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding-top: 20px; border-top: 1px solid var(--line); }
+.owner-try p { margin: 0; color: var(--muted); }
+.owner-try p b { color: var(--ink); }
+.gus-demo { padding: 8px 16px; background: #fff7e0; color: #5c4710; font-size: 13px; line-height: 1.4; border-bottom: 1px solid var(--line); }
+.gus-demo .gus-link { font-size: 13px; margin-top: 0; min-height: 0; }
+button:disabled.btn { opacity: .6; cursor: default; }
+@media (max-width: 700px) {
+  .owner h1 { font-size: 40px; }
+  .owner-actions .btn { width: 100%; }
+}
