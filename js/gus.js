@@ -128,55 +128,6 @@
     return node;
   }
 
-  // Made-up answers for "Fill in example details", picked from Gus's last question.
-  const EXAMPLES = [
-    [/(would you like|want) to (choose|pick|book|see|request|schedule)|open times|see .*times/i, "Yes, please."],
-    [/e-?mail|phone|contact|reach you/i, "Sam Rivera, sam.rivera@example.com, (510) 555-0199."],
-    [/name/i, "I'm Sam Rivera."],
-    [/how big|size|square|how large|acre/i, "The backyard is about 900 square feet."],
-    [/address|where|located|neighborhood|city/i, "12 Oak Avenue, Oakland."],
-  ];
-  const FIRST_EXAMPLE =
-    "Hi! We'd like to redesign our backyard with native planting beds and a small gravel seating area. We're at 12 Oak Avenue, Oakland.";
-  function exampleAnswer(question) {
-    const hit = EXAMPLES.find(([pattern]) => pattern.test(question));
-    return hit ? hit[1] : FIRST_EXAMPLE;
-  }
-
-  // Demo notes under Gus's first question about each detail: make up the address
-  // and phone; the e-mail may be real, for one follow-up from Güd Vector.
-  const asksAddress = (text) =>
-    /address|where is the (yard|property|garden)|where .*located/i.test(text.replace(/e-?mail address(es)?/gi, ""));
-  const asksPhone = (text) => /phone/i.test(text);
-  const asksEmail = (text) => /e-?mail/i.test(text);
-  const EMAIL_HINT =
-    "Use your real email if you'd like a follow-up from Güd Vector about this demo. We'll send one short message.";
-  function demoHints(messages) {
-    const hints = new Map();
-    const shown = { address: false, phone: false, email: false };
-    messages.forEach((m, i) => {
-      // Only the questions count: "I'll e-mail you a confirmation." asks for nothing.
-      const asked = m.role === "agent" ? (m.content.match(/[^.!?]*\?/g) || []).join(" ") : "";
-      if (!asked) return;
-      const address = !shown.address && asksAddress(asked);
-      const phone = !shown.phone && asksPhone(asked);
-      const email = !shown.email && asksEmail(asked);
-      Object.assign(shown, { address: shown.address || address, phone: shown.phone || phone, email: shown.email || email });
-      const madeUp = [address && "your address", phone && "your phone number"].filter(Boolean);
-      const parts = [];
-      if (madeUp.length) {
-        const both = madeUp.length > 1;
-        parts.push(
-          `This is where I'd normally ask for ${madeUp.join(" and ")}. It's a demo, so feel free to make ${both ? "them" : "one"} up. ` +
-            `${both ? "They aren't" : "It isn't"} sent anywhere, and this copy is deleted after 2 hours.`,
-        );
-      }
-      if (email) parts.push(EMAIL_HINT);
-      if (parts.length) hints.set(i, parts.join(" "));
-    });
-    return hints;
-  }
-
   const enc = encodeURIComponent;
   let instance = 0;
 
@@ -245,15 +196,10 @@
       consent.append(this.consent, consentLabel);
 
       const demo = el("div", "gus-demo");
-      demo.append(el("span", null, "Larkspur is a fictional business. Please make up your details, except your email if you'd like a follow-up from Güd Vector."));
-      this.exampleBtn = el("button", "gus-link", "Fill in example details");
-      this.exampleBtn.type = "button";
-      this.exampleBtn.addEventListener("click", () => {
-        this.input.value = exampleAnswer(this.lastAgentMessage());
-        this.renderControls();
-        this.input.focus();
-      });
-      demo.append(" ", this.exampleBtn);
+      demo.append(
+        el("b", null, "You're Sam Rivera, a homeowner in Oakland. "),
+        "Gus already has Sam's contact details, so just tell him about the yard. Larkspur is a fictional business.",
+      );
 
       this.root.append(this.banner, demo, this.log, this.form, consent);
     }
@@ -428,15 +374,13 @@
       if (this.phase === "booting" && this.messages.length === 0) {
         nodes.push(el("p", "gus-muted", "Starting your conversation…"));
       }
-      const hints = demoHints(this.messages);
-      this.messages.forEach((m, i) => {
+      this.messages.forEach((m) => {
         const row = el("div", `gus-row ${m.role}`);
         const bubble = el("div", "gus-bubble");
         if (m.role === "owner") bubble.append(el("span", "gus-owner-label", "Larkspur"));
         bubble.append(document.createTextNode(m.content));
         row.append(bubble);
         nodes.push(row);
-        if (hints.has(i)) nodes.push(el("p", "gus-hint", hints.get(i)));
       });
       if (this.phase === "sending") {
         const row = el("div", "gus-row agent");
@@ -500,13 +444,6 @@
       return card;
     }
 
-    lastAgentMessage() {
-      for (let i = this.messages.length - 1; i >= 0; i -= 1) {
-        if (this.messages[i].role === "agent") return this.messages[i].content;
-      }
-      return "";
-    }
-
     renderControls() {
       const terminal = Boolean(TERMINAL[this.state]);
       const disabled = this.phase !== "ready" || terminal || this.state === "proposing_slots";
@@ -517,7 +454,6 @@
           ? "Pick a time above."
           : "Type your reply…";
       this.sendBtn.disabled = disabled || !this.input.value.trim();
-      this.exampleBtn.disabled = disabled;
     }
   }
 
