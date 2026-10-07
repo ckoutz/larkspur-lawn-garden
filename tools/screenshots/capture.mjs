@@ -6,7 +6,7 @@
 //
 // It books one fictional walk-through through the real Gus chat and leaves it
 // waiting under Needs you; it never approves, pays or sends anything.
-import { mkdirSync } from "node:fs";
+import { mkdirSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
@@ -36,6 +36,10 @@ const page = await context.newPage();
 await (await context.newCDPSession(page)).send("Emulation.setScrollbarsHidden", { hidden: true });
 
 async function shoot(name, prepare, only) {
+  // A one-size shot clears the other size's image left by an earlier run.
+  for (const [size] of sizes.filter(([size]) => only && size !== only)) {
+    rmSync(`${out}/${name}-${size}.png`, { force: true });
+  }
   for (const [size, viewport] of sizes.filter(([size]) => !only || size === only)) {
     await page.setViewportSize(viewport);
     await prepare(size);
