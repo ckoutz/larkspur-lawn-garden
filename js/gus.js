@@ -143,6 +143,38 @@
     return hit ? hit[1] : FIRST_EXAMPLE;
   }
 
+  // Demo notes under Gus's first question about each detail: make up the address
+  // and phone; the e-mail may be real, for one follow-up from Güd Vector.
+  const asksAddress = (text) =>
+    /address|where is the (yard|property|garden)|where .*located/i.test(text.replace(/e-?mail address(es)?/gi, ""));
+  const asksPhone = (text) => /phone/i.test(text);
+  const asksEmail = (text) => /e-?mail/i.test(text);
+  const EMAIL_HINT =
+    "Use your real email if you'd like a follow-up from Güd Vector about this demo. We'll send one short message.";
+  function demoHints(messages) {
+    const hints = new Map();
+    const shown = { address: false, phone: false, email: false };
+    messages.forEach((m, i) => {
+      if (m.role !== "agent" || !m.content.includes("?")) return;
+      const address = !shown.address && asksAddress(m.content);
+      const phone = !shown.phone && asksPhone(m.content);
+      const email = !shown.email && asksEmail(m.content);
+      Object.assign(shown, { address: shown.address || address, phone: shown.phone || phone, email: shown.email || email });
+      const madeUp = [address && "your address", phone && "your phone number"].filter(Boolean);
+      const parts = [];
+      if (madeUp.length) {
+        const both = madeUp.length > 1;
+        parts.push(
+          `This is where I'd normally ask for ${madeUp.join(" and ")}. It's a demo, so feel free to make ${both ? "them" : "one"} up. ` +
+            `${both ? "They aren't" : "It isn't"} sent anywhere, and this copy is deleted after 2 hours.`,
+        );
+      }
+      if (email) parts.push(EMAIL_HINT);
+      if (parts.length) hints.set(i, parts.join(" "));
+    });
+    return hints;
+  }
+
   const enc = encodeURIComponent;
   let instance = 0;
 
@@ -211,7 +243,7 @@
       consent.append(this.consent, consentLabel);
 
       const demo = el("div", "gus-demo");
-      demo.append(el("span", null, "Larkspur is a fictional business. Please don't enter real details."));
+      demo.append(el("span", null, "Larkspur is a fictional business. Please make up your details, except your email if you'd like a follow-up from Güd Vector."));
       this.exampleBtn = el("button", "gus-link", "Fill in example details");
       this.exampleBtn.type = "button";
       this.exampleBtn.addEventListener("click", () => {
@@ -394,14 +426,16 @@
       if (this.phase === "booting" && this.messages.length === 0) {
         nodes.push(el("p", "gus-muted", "Starting your conversation…"));
       }
-      for (const m of this.messages) {
+      const hints = demoHints(this.messages);
+      this.messages.forEach((m, i) => {
         const row = el("div", `gus-row ${m.role}`);
         const bubble = el("div", "gus-bubble");
         if (m.role === "owner") bubble.append(el("span", "gus-owner-label", "Larkspur"));
         bubble.append(document.createTextNode(m.content));
         row.append(bubble);
         nodes.push(row);
-      }
+        if (hints.has(i)) nodes.push(el("p", "gus-hint", hints.get(i)));
+      });
       if (this.phase === "sending") {
         const row = el("div", "gus-row agent");
         const dots = el("div", "gus-typing");

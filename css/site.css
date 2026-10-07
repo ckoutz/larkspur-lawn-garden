@@ -179,6 +179,7 @@ button, input, textarea { font: inherit; }
 .gus-row.agent .gus-bubble { background: var(--chip); border-bottom-left-radius: 6px; }
 .gus-row.owner .gus-bubble { background: var(--bg); border: 1px solid var(--field); border-bottom-left-radius: 6px; }
 .gus-row.user .gus-bubble { background: var(--green); color: #fff; border-bottom-right-radius: 6px; }
+.gus-hint { max-width: 85%; margin-top: -4px; padding: 6px 12px; border-left: 3px solid #e3c766; background: #fff7e0; color: #5c4710; font-size: 13px; line-height: 1.4; border-radius: 0 10px 10px 0; }
 .gus-owner-label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--green-dark); }
 .gus-muted { font-size: 14px; color: var(--muted); }
 .gus-typing { display: inline-flex; gap: 4px; padding: 14px 16px; border-radius: 18px; border-bottom-left-radius: 6px; background: var(--chip); }
