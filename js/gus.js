@@ -195,11 +195,15 @@
       this.consent.addEventListener("change", () => writeConsent(this.consent.checked));
       consent.append(this.consent, consentLabel);
 
+      // Only a visitor's own copy knows Sam; the shared demo business still asks.
       const demo = el("div", "gus-demo");
-      demo.append(
+      this.samLine = el("span");
+      this.samLine.append(
         el("b", null, "You're Sam Rivera, a homeowner in Oakland. "),
-        "Gus already has Sam's contact details, so just tell him about the yard. Larkspur is a fictional business.",
+        "Gus already has Sam's contact details, so just tell him about the yard. ",
       );
+      this.samLine.hidden = !(cfg.sandbox && window.LarkspurSandbox);
+      demo.append(this.samLine, "Larkspur is a fictional business.");
 
       this.root.append(this.banner, demo, this.log, this.form, consent);
     }
@@ -231,6 +235,7 @@
       const sandbox = window.LarkspurSandbox;
       for (let attempt = 0; ; attempt += 1) {
         const key = sandbox ? await sandbox.businessKey() : cfg.businessKey;
+        this.samLine.hidden = key === cfg.businessKey;
         try {
           return await api(`/v1/businesses/${enc(key)}/intake/conversations`, { method: "POST", body: {} });
         } catch (err) {
