@@ -1,10 +1,10 @@
 # Güd Office screenshots
 
-Captures six screens of the Larkspur demo at phone (390×844) and desktop
-(1440×900) size, at 2× pixel density: owner home, quotes (the week's calendar
-on the phone, where the Quotes table scrolls sideways), a quote with Mark
-paid, the check/cash monthly plan, the Gus booking chat (openings, then request
-sent) and the owner approval under Needs you.
+Captures five screens of the Larkspur demo at phone (390×844) and desktop
+(1440×900) size, at 2× pixel density: owner home (the new request waiting
+under Needs you), quotes (the week's calendar on the phone, where the Quotes
+table scrolls sideways), a quote with Mark paid, the check/cash monthly plan
+and the Gus booking chat (openings, then request sent).
 
 1. Reset the demo and print a one-time owner sign-in link (it works once and
    expires after 15 minutes), on the demo backend only:
