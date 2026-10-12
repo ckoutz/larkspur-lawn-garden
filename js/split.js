@@ -80,7 +80,32 @@
     else frame.src = OWNER;
   }
 
+  // Inside the page the site's own header is enough: hide the dashboard's.
+  function tidyFrame() {
+    try {
+      const doc = frame.contentDocument;
+      if (!doc || !doc.head || doc.getElementById("larkspur-embed")) return;
+      const link = doc.createElement("link");
+      link.id = "larkspur-embed";
+      link.rel = "stylesheet";
+      link.href = "/css/embed.css";
+      doc.head.append(link);
+    } catch {
+      // not the proxied dashboard
+    }
+  }
+
+  // The chat and dashboard fill the screen below the intro, so only they scroll.
+  function fit() {
+    const panes = document.querySelector(".split-panes");
+    const top = panes.getBoundingClientRect().top + window.scrollY;
+    document.documentElement.style.setProperty("--split-top", `${Math.round(top)}px`);
+  }
+  fit();
+  window.addEventListener("resize", fit);
+
   frame.addEventListener("load", () => {
+    tidyFrame();
     const path = framePath();
     if (path.startsWith("/portal/session")) return;
     const wasSigningIn = signingIn;
