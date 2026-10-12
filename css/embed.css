@@ -1,0 +1,2 @@
+/* The dashboard inside the Owner view: the Larkspur page already has the header. */
+body > header, body > footer { display: none !important; }

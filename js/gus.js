@@ -46,11 +46,23 @@
     if (Number.isNaN(start.getTime())) return content;
     return `${dayFmt.format(start)}, ${timeFmt.format(start)}${zone(start)}`;
   }
+  function pickOf(role, content) {
+    return role === "user" && content.startsWith(SLOT_PREFIX) ? content.slice(SLOT_PREFIX.length) : null;
+  }
   function mapMessages(messages) {
-    return messages.map((m) => ({
-      role: m.role,
-      content: m.role === "user" && m.content.startsWith(SLOT_PREFIX) ? pickLabel(m.content) : m.content,
-    }));
+    return messages.map((m) => {
+      const pick = pickOf(m.role, m.content);
+      return { role: m.role, content: pick ? pickLabel(m.content) : m.content, pick };
+    });
+  }
+  // Offered times kept per pick, so a resumed chat shows each pick with its own offer.
+  function offersOf(stored) {
+    const offers = stored && stored.offers;
+    return offers && !Array.isArray(offers) ? offers : {};
+  }
+
+  function sameTime(a, b) {
+    return new Date(a).getTime() === new Date(b).getTime();
   }
   function returningGreeting(booking) {
     const label = bookingLabel(booking);
@@ -146,6 +158,8 @@
       this.stored = null;
       this.greeting = null;
       this.timer = null;
+      // Bumped by every send, so a poll that started before it can't undo it.
+      this.seq = 0;
       this.build(`gus-${instance}`);
       // The page asks for a fresh transcript, e.g. after the owner acted.
       document.addEventListener("gus:refresh", () => this.poll());
@@ -261,7 +275,9 @@
         });
         this.stored = stored;
         this.applyView(res);
-        this.greeting = res.booking ? { role: "agent", content: returningGreeting(res.booking) } : null;
+        this.greeting = res.booking
+          ? { role: "agent", content: returningGreeting(res.booking), confirmed: res.booking.status === "confirmed" }
+          : null;
         if (this.greeting) this.messages.push(this.greeting);
         this.phase = "ready";
         this.render();
@@ -285,7 +301,8 @@
     async send(message, echo = message) {
       if (!this.stored || this.phase === "sending") return false;
       const previousSlots = this.slots;
-      const echoed = { role: "user", content: echo };
+      const echoed = { role: "user", content: echo, pick: pickOf("user", message) };
+      this.seq += 1;
       this.messages.push(echoed);
       this.slots = null;
       this.error = null;
@@ -297,15 +314,22 @@
           token: this.stored.conversationToken,
           body: { message, sms_consent: this.consent.checked },
         });
+        this.seq += 1;
         this.state = res.state;
         this.slots = res.slots;
         this.booking = res.booking || null;
         if (res.reply) this.messages.push({ role: "agent", content: res.reply });
+        // Keep the offered times in the transcript once one is picked.
+        if (echoed.pick && previousSlots) {
+          this.stored.offers = { ...offersOf(this.stored), [echoed.pick]: previousSlots };
+          writeStored(this.stored);
+        }
         this.phase = "ready";
         this.render();
         if (!this.input.disabled) this.input.focus();
         return true;
       } catch (err) {
+        this.seq += 1;
         if (err instanceof HttpError && err.status === 401) {
           writeStored(null);
           this.phase = "expired";
@@ -348,11 +372,14 @@
     async poll() {
       const stored = this.stored;
       if (this.phase !== "ready" || !stored) return;
+      const seq = this.seq;
+      this.pollSeq = (this.pollSeq || 0) + 1;
+      const ticket = this.pollSeq;
       try {
         const res = await api(`/v1/intake/conversations/${enc(stored.conversationId)}`, {
           token: stored.conversationToken,
         });
-        if (this.stored?.conversationId !== stored.conversationId || this.phase !== "ready") return;
+        if (this.stored?.conversationId !== stored.conversationId || this.phase !== "ready" || seq !== this.seq || ticket !== this.pollSeq) return;
         this.applyView(res);
         if (this.greeting) this.messages.push(this.greeting);
         this.render();
@@ -401,7 +428,9 @@
       if (this.phase === "booting" && this.messages.length === 0) {
         nodes.push(el("p", "gus-muted", "Starting your conversation…"));
       }
+      const offers = offersOf(this.stored);
       this.messages.forEach((m) => {
+        if (m.pick && offers[m.pick]) nodes.push(this.offered(offers[m.pick], m.pick));
         const row = el("div", `gus-row ${m.role}`);
         const bubble = el("div", "gus-bubble");
         if (m.role === "owner") bubble.append(el("span", "gus-owner-label", "Larkspur"));
@@ -409,6 +438,13 @@
         row.append(bubble);
         nodes.push(row);
       });
+
+      // The owner approved: say so in the chat too, not only in the banner.
+      if (this.booking && this.booking.status === "confirmed" && !terminal && !(this.greeting && this.greeting.confirmed)) {
+        const row = el("div", "gus-row agent");
+        row.append(el("div", "gus-bubble", `Good news: Larkspur approved your request. Your walk-through is booked for ${bookingLabel(this.booking)}.`));
+        nodes.push(row);
+      }
 
       if (this.phase === "sending") {
         const row = el("div", "gus-row agent");
@@ -462,6 +498,28 @@
       this.log.scrollTop = this.log.scrollHeight;
       this.renderControls();
       this.syncPolling();
+    }
+
+    // The times Gus offered, kept in the transcript after one was picked.
+    offered(slots, pick) {
+      const group = el("div", "gus-slots gus-slots-done");
+      group.setAttribute("role", "group");
+      group.setAttribute("aria-label", "Times Gus offered");
+      group.append(el("p", "gus-slots-title", "Times offered:"));
+      const grid = el("div", "gus-slot-grid");
+      for (const slot of slots) {
+        const start = new Date(slot.start);
+        const picked = sameTime(slot.start, pick);
+        const item = el("span", picked ? "gus-slot picked" : "gus-slot");
+        item.setAttribute("aria-label", `${slotLabel(slot)}${picked ? " (picked)" : ""}`);
+        item.append(
+          el("small", null, dayFmt.format(start)),
+          document.createTextNode(`${timeFmt.format(start)}–${timeFmt.format(new Date(slot.end))}`),
+        );
+        grid.append(item);
+      }
+      group.append(grid);
+      return group;
     }
 
     card(title, body, action) {
