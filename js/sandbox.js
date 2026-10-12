@@ -60,9 +60,8 @@
         const body = await res.json();
         // Two tabs that both started without a copy: the first one saved wins.
         const saved = read();
-        if (saved) return (current = saved);
-        current = { publicKey: body.publicKey, sandboxToken: body.sandboxToken };
-        write(current);
+        current = saved || { publicKey: body.publicKey, sandboxToken: body.sandboxToken };
+        if (!saved) write(current);
         // The old copy was deleted: tell the chat, dashboard and Texts to move here.
         if (replaced) {
           replaced = false;
