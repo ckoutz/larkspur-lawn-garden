@@ -2,24 +2,32 @@
   publish = "."
   command = ""
 
-# Links GVAS e-mails point at this site (site_url): customer sign-in
-# (/portal/login?token=…), the portal and quote pages live on the Larkspur
-# dashboard. Netlify keeps the query string.
+# The Larkspur owner dashboard (a Vercel deployment) is served under this
+# site's own address, so the owner view can show it next to the chat (same
+# origin: its sign-in cookie lives here). GVAS e-mail links (site_url) to the
+# customer portal (/portal) and quote pages (/q) land here too.
 [[redirects]]
   from = "/portal"
   to = "https://larkspur-dashboard.vercel.app/portal"
-  status = 302
+  status = 200
 
 [[redirects]]
   from = "/portal/*"
   to = "https://larkspur-dashboard.vercel.app/portal/:splat"
-  status = 302
+  status = 200
 
 [[redirects]]
   from = "/q/*"
   to = "https://larkspur-dashboard.vercel.app/q/:splat"
-  status = 302
+  status = 200
 
+[[redirects]]
+  from = "/_next/*"
+  to = "https://larkspur-dashboard.vercel.app/_next/:splat"
+  status = 200
+
+# The site's own content policy is a <meta> tag in each page, because these
+# headers also reach the proxied dashboard. Only this site may frame pages.
 [[headers]]
   for = "/*"
   [headers.values]
@@ -27,7 +35,7 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://web-demo-5831.up.railway.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    Content-Security-Policy = "frame-ancestors 'self'; base-uri 'self'; object-src 'none'"
 
 # The screenshot tool lives in the repo but is not part of the site.
 [[redirects]]

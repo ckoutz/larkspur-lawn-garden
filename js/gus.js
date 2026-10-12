@@ -20,9 +20,11 @@
     },
   };
 
-  const dayFmt = new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric" });
-  const timeFmt = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" });
-  const zoneFmt = new Intl.DateTimeFormat(undefined, { hour: "numeric", timeZoneName: "short" });
+  // Larkspur's own time zone, the one Gus and the owner dashboard use.
+  const timeZone = cfg.timeZone || "America/Los_Angeles";
+  const dayFmt = new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric", timeZone });
+  const timeFmt = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit", timeZone });
+  const zoneFmt = new Intl.DateTimeFormat(undefined, { hour: "numeric", timeZoneName: "short", timeZone });
 
   function zone(date) {
     const part = zoneFmt.formatToParts(date).find((p) => p.type === "timeZoneName");
@@ -145,6 +147,8 @@
       this.greeting = null;
       this.timer = null;
       this.build(`gus-${instance}`);
+      // The page asks for a fresh transcript, e.g. after the owner acted.
+      document.addEventListener("gus:refresh", () => this.poll());
       this.boot();
     }
 
@@ -245,7 +249,7 @@
           return await api(`/v1/businesses/${enc(key)}/intake/conversations`, { method: "POST", body: {} });
         } catch (err) {
           if (!sandbox || attempt > 0 || !(err instanceof HttpError && err.status === 404)) throw err;
-          sandbox.forget();
+          sandbox.forget(key);
         }
       }
     }
@@ -363,6 +367,14 @@
 
     render() {
       this.root.dataset.intakeState = this.state;
+      // Tells the page (the split screen) when the request changes, so the
+      // owner dashboard next to the chat can reload.
+      const key = `${this.state}|${this.booking ? `${this.booking.status}|${this.booking.start}` : ""}`;
+      if (this.phase !== "booting" && key !== this.lastKey) {
+        const first = this.lastKey === undefined;
+        this.lastKey = key;
+        if (!first) document.dispatchEvent(new CustomEvent("gus:change", { detail: { state: this.state } }));
+      }
       const terminal = TERMINAL[this.state];
 
       if (this.booking && !terminal) {
@@ -392,6 +404,7 @@
         row.append(bubble);
         nodes.push(row);
       });
+
       if (this.phase === "sending") {
         const row = el("div", "gus-row agent");
         const dots = el("div", "gus-typing");
@@ -418,7 +431,9 @@
           button.addEventListener("click", () => this.send(`${SLOT_PREFIX}${slot.start}`, slotLabel(slot)));
           grid.append(button);
         }
-        group.append(grid, el("p", "gus-note", `Times shown in your time zone${zone(new Date())}.`));
+        const zones = [...new Set(this.slots.map((slot) => zone(new Date(slot.start)).trim()))].filter(Boolean);
+        const zoneNote = zones.length ? ` ${zones.join(" / ")}` : "";
+        group.append(grid, el("p", "gus-note", `Times are Larkspur's local time${zoneNote}.`));
         nodes.push(group);
       }
       if (terminal && this.phase === "ready") {

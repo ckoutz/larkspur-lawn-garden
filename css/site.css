@@ -292,3 +292,64 @@ button:disabled.btn { opacity: .6; cursor: default; }
   .owner h1 { font-size: 40px; }
   .owner-actions .btn { width: 100%; }
 }
+
+/* Owner view: chat and dashboard side by side */
+.split { display: flex; flex-direction: column; gap: 20px; padding-top: 16px; padding-bottom: 64px; }
+.split-intro { display: flex; flex-direction: column; gap: 12px; }
+.split-intro h1 { font-weight: 800; font-size: 44px; line-height: 1.05; letter-spacing: -.025em; }
+.split-intro .lede { max-width: 860px; margin: 0; }
+.split-panes { display: grid; grid-template-columns: minmax(340px, 420px) minmax(0, 1fr); gap: 24px; align-items: start; }
+.split-dash { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.split-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; min-height: 48px; }
+.split-bar > b { margin-right: auto; font-family: var(--display); font-size: 20px; }
+.split-views, .split-tabs { display: inline-flex; border: 1px solid var(--field); border-radius: 999px; padding: 3px; background: var(--white); }
+.split-views button, .split-tabs button { min-height: 40px; padding: 8px 18px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: inherit; font-weight: 700; cursor: pointer; }
+.split-views button[aria-pressed="true"], .split-tabs button[aria-pressed="true"] { background: var(--green); color: #fff; }
+.split-link { min-height: 44px; display: inline-flex; align-items: center; border: 0; background: none; padding: 0; font: inherit; font-weight: 700; color: var(--green-dark); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.split-stage { display: flex; justify-content: center; border: 1px solid var(--line); border-radius: 24px; overflow: hidden; background: var(--white); }
+.split-stage iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--white); }
+.split-dash[data-view="phone"] .split-stage { padding: 24px 0; background: var(--chip); overflow: visible; }
+.split-tabs { display: none; align-self: flex-start; }
+.split-new { color: var(--star); }
+.split-tabs button[aria-pressed="false"] .split-new { color: var(--green); }
+
+/* A phone, drawn in CSS: 375×812 screen, thin dark bezel, island, side buttons */
+.iphone { --bezel: 11px; position: relative; flex: none; width: calc(375px + 2 * var(--bezel)); aspect-ratio: 397 / 834; padding: var(--bezel); border-radius: 60px; background: #121214; box-shadow: 0 0 0 1.5px #4a4a4f, 0 0 0 3px #1d1d20, 0 28px 60px rgba(20, 30, 20, .28); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", system-ui, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+.iphone-btn { position: absolute; width: 4px; border-radius: 2px; background: #2c2c30; box-shadow: inset 0 0 0 1px #4a4a4f; }
+.iphone-action { left: -4px; top: 118px; height: 32px; }
+.iphone-vol-up { left: -4px; top: 172px; height: 60px; }
+.iphone-vol-down { left: -4px; top: 246px; height: 60px; }
+.iphone-power { right: -4px; top: 200px; height: 96px; }
+.iphone-screen { position: relative; height: 100%; display: flex; flex-direction: column; border-radius: 49px; overflow: hidden; background: #fff; }
+.iphone-status { position: relative; flex: none; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 6px 30px 0 46px; color: #000; background: #f9f9f9; }
+.iphone-time { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+.iphone-island { position: absolute; left: 50%; top: 11px; width: 122px; height: 35px; margin-left: -61px; border-radius: 20px; background: #000; }
+.iphone-icons { display: inline-flex; align-items: center; gap: 6px; }
+.iphone-icons svg { fill: currentColor; }
+.iphone-app { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; padding-bottom: 30px; background: #fff; }
+.iphone-app > iframe { flex: 1; height: auto; }
+.iphone-home { position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: #111; }
+
+/* The dashboard's Computer view: no phone around it */
+.split-dash[data-view="desktop"] .split-stage { height: 834px; }
+.split-dash[data-view="desktop"] .iphone { width: 100%; aspect-ratio: auto; padding: 0; border-radius: 0; background: none; box-shadow: none; }
+.split-dash[data-view="desktop"] .iphone-screen { border-radius: 0; }
+.split-dash[data-view="desktop"] :is(.iphone-btn, .iphone-status, .iphone-home) { display: none; }
+.split-dash[data-view="desktop"] .iphone-app { padding-bottom: 0; }
+
+.split-chat .gus-inline { height: 834px; }
+
+@media (max-width: 1023px) {
+  .split-intro h1 { font-size: 34px; }
+  .split-tabs { display: inline-flex; }
+  .split-panes { grid-template-columns: minmax(0, 1fr); }
+  .split[data-pane="chat"] .split-dash, .split[data-pane="dash"] .split-chat { display: none; }
+  .split-chat .gus-inline { height: calc(100svh - 120px); min-height: 520px; }
+  .split-views, .split-bar > b { display: none; }
+  .split-bar { justify-content: flex-end; min-height: 0; }
+  .split-dash .split-stage, .split-dash[data-view] .split-stage { height: calc(100svh - 120px); min-height: 520px; padding: 0; background: var(--white); overflow: hidden; }
+  .split-dash .iphone { width: 100%; aspect-ratio: auto; padding: 0; border-radius: 0; background: none; box-shadow: none; }
+  .split-dash .iphone-screen { border-radius: 0; }
+  .split-dash :is(.iphone-btn, .iphone-status, .iphone-home) { display: none; }
+  .split-dash .iphone-app { padding-bottom: 0; }
+}

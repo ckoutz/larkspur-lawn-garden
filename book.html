@@ -6,6 +6,7 @@
 <title>Book a free estimate · Larkspur Lawn & Garden</title>
 <meta name="description" content="Fictional demo business: chat with Gus to book a free walk-through.">
 <meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://web-demo-5831.up.railway.app; base-uri 'self'; form-action 'self'">
 <link rel="icon" href="images/mark.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,8 +43,7 @@
     </ul>
     <div class="owner-try">
       <p><b>Then see it as the owner.</b> Your request shows up in Larkspur's dashboard under "Needs you", where you can approve it.</p>
-      <button class="btn btn-outline" type="button" data-owner-view aria-describedby="owner-try-status">Try the owner view</button>
-      <p class="notice error" id="owner-try-status" role="alert" hidden></p>
+      <a class="btn btn-outline" href="owner.html">Chat and dashboard side by side</a>
     </div>
   </div>
   <div class="book-chat" data-gus-inline></div>

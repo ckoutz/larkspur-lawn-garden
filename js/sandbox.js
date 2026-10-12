@@ -71,7 +71,10 @@
   }
 
   // The copy was swept (idle too long): forget it so the next call makes a new one.
-  function forget() {
+  // Only that copy: if another caller already replaced it, keep the replacement.
+  function forget(publicKey) {
+    const saved = current || read();
+    if (publicKey && saved && saved.publicKey !== publicKey) return;
     current = null;
     write(null);
   }
@@ -81,25 +84,28 @@
     return sandbox ? sandbox.publicKey : cfg.businessKey;
   }
 
-  // Signs the visitor in to their own owner dashboard, no e-mail involved.
-  async function openOwnerView() {
+  // A one-time sign-in link to the visitor's own owner dashboard, no e-mail involved.
+  async function ownerSignInPath() {
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const sandbox = await ensure();
       if (!sandbox) throw new SandboxError(404);
       const res = await post("/v1/demo/sandboxes/sign-in", sandbox.sandboxToken);
       if (res.status === 401) {
-        forget();
+        forget(sandbox.publicKey);
         continue;
       }
       if (!res.ok) throw new SandboxError(res.status);
       const { signInToken } = await res.json();
-      window.location.assign(`${cfg.dashboardOrigin}/portal/session?token=${encodeURIComponent(signInToken)}`);
-      return;
+      return `${cfg.dashboardOrigin}/portal/session?token=${encodeURIComponent(signInToken)}`;
     }
     throw new SandboxError(401);
   }
 
-  window.LarkspurSandbox = { ensure, forget, businessKey, openOwnerView, SandboxError };
+  async function openOwnerView() {
+    window.location.assign(await ownerSignInPath());
+  }
+
+  window.LarkspurSandbox = { ensure, forget, businessKey, ownerSignInPath, openOwnerView, SandboxError };
 
   document.querySelectorAll("[data-owner-view]").forEach((button) => {
     const status = document.getElementById(button.getAttribute("aria-describedby") || "");

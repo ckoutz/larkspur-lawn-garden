@@ -5,5 +5,6 @@ window.LARKSPUR = {
   apiUrl: "https://web-demo-5831.up.railway.app",
   businessKey: "gvb_ANFmibma_UEm3Z_HJg44Ow",
   sandbox: true,
-  dashboardOrigin: "https://larkspur-dashboard.vercel.app",
+  // The owner dashboard is served under this site's own address (netlify.toml).
+  dashboardOrigin: "",
 };
