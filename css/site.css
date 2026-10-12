@@ -298,8 +298,7 @@ button:disabled.btn { opacity: .6; cursor: default; }
 .split-intro { display: flex; flex-direction: column; gap: 12px; }
 .split-intro h1 { font-weight: 800; font-size: 44px; line-height: 1.05; letter-spacing: -.025em; }
 .split-intro .lede { max-width: 860px; margin: 0; }
-.split-panes { display: grid; grid-template-columns: minmax(340px, 420px) minmax(0, 1fr); gap: 24px; align-items: start; }
-.split-chat .gus-inline { height: 780px; }
+.split-panes { display: grid; grid-template-columns: 397px minmax(0, 1fr); gap: 32px; align-items: start; }
 .split-dash { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .split-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; min-height: 48px; }
 .split-bar > b { margin-right: auto; font-family: var(--display); font-size: 20px; }
@@ -307,21 +306,93 @@ button:disabled.btn { opacity: .6; cursor: default; }
 .split-views button, .split-tabs button { min-height: 40px; padding: 8px 18px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: inherit; font-weight: 700; cursor: pointer; }
 .split-views button[aria-pressed="true"], .split-tabs button[aria-pressed="true"] { background: var(--green); color: #fff; }
 .split-link { min-height: 44px; display: inline-flex; align-items: center; border: 0; background: none; padding: 0; font: inherit; font-weight: 700; color: var(--green-dark); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
-.split-stage { height: 732px; display: flex; justify-content: center; border: 1px solid var(--line); border-radius: 24px; overflow: hidden; background: var(--white); }
-.split-stage iframe { width: 100%; height: 100%; border: 0; background: var(--white); }
-.split-dash[data-view="phone"] .split-stage { padding: 16px 0; background: var(--chip); }
-.split-dash[data-view="phone"] .split-stage iframe { width: 390px; max-width: 100%; border: 10px solid var(--green-deep); border-radius: 40px; }
+.split-stage { display: flex; justify-content: center; border: 1px solid var(--line); border-radius: 24px; overflow: hidden; background: var(--white); }
+.split-stage iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--white); }
+.split-dash[data-view="phone"] .split-stage { padding: 24px 0; background: var(--chip); overflow: visible; }
 .split-tabs { display: none; align-self: flex-start; }
 .split-new { color: var(--star); }
 .split-tabs button[aria-pressed="false"] .split-new { color: var(--green); }
+
+/* A phone, drawn in CSS: 375×812 screen, thin dark bezel, island, side buttons */
+.iphone { --bezel: 11px; position: relative; flex: none; width: calc(375px + 2 * var(--bezel)); aspect-ratio: 397 / 834; padding: var(--bezel); border-radius: 60px; background: #121214; box-shadow: 0 0 0 1.5px #4a4a4f, 0 0 0 3px #1d1d20, 0 28px 60px rgba(20, 30, 20, .28); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", system-ui, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+.iphone-btn { position: absolute; width: 4px; border-radius: 2px; background: #2c2c30; box-shadow: inset 0 0 0 1px #4a4a4f; }
+.iphone-action { left: -4px; top: 118px; height: 32px; }
+.iphone-vol-up { left: -4px; top: 172px; height: 60px; }
+.iphone-vol-down { left: -4px; top: 246px; height: 60px; }
+.iphone-power { right: -4px; top: 200px; height: 96px; }
+.iphone-screen { position: relative; height: 100%; display: flex; flex-direction: column; border-radius: 49px; overflow: hidden; background: #fff; }
+.iphone-status { position: relative; flex: none; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 6px 30px 0 46px; color: #000; background: #f9f9f9; }
+.iphone-time { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+.iphone-island { position: absolute; left: 50%; top: 11px; width: 122px; height: 35px; margin-left: -61px; border-radius: 20px; background: #000; }
+.iphone-icons { display: inline-flex; align-items: center; gap: 6px; }
+.iphone-icons svg { fill: currentColor; }
+.iphone-app { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; padding-bottom: 30px; background: #fff; }
+.iphone-app > iframe { flex: 1; height: auto; }
+.iphone-home { position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: #111; }
+
+/* The dashboard's Computer view: no phone around it */
+.split-dash[data-view="desktop"] .split-stage { height: 834px; }
+.split-dash[data-view="desktop"] .iphone { width: 100%; aspect-ratio: auto; padding: 0; border-radius: 0; background: none; box-shadow: none; }
+.split-dash[data-view="desktop"] .iphone-screen { border-radius: 0; }
+.split-dash[data-view="desktop"] :is(.iphone-btn, .iphone-status, .iphone-home) { display: none; }
+.split-dash[data-view="desktop"] .iphone-app { padding-bottom: 0; }
+
+/* Gus as a Messages-style thread inside the phone */
+.gus-stamp, .gus-delivered { display: none; }
+.gus-messages { --blue: #0a7cff; --gray: #e9e9eb; height: 100%; border: 0; border-radius: 0; font-family: inherit; color: #000; }
+.gus-messages .gus { background: #fff; }
+.gus-mhead { position: relative; flex: none; display: flex; justify-content: center; padding: 4px 16px 10px; background: #f9f9f9; border-bottom: .5px solid #c6c6c8; }
+.gus-mback { position: absolute; left: 16px; top: 16px; color: var(--blue); }
+.gus-mwho { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.gus-mavatar { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(#a5aab3, #858a93); color: #fff; font-size: 21px; font-weight: 600; }
+.gus-mname { font-size: 12px; color: #000; }
+.gus-mname::after { content: " ›"; color: #8e8e93; }
+.gus-messages .gus-banner { padding: 8px 14px; background: #f2f2f7; border-bottom: .5px solid #c6c6c8; text-align: center; }
+.gus-messages .gus-banner b { font-size: 13px; color: #000; }
+.gus-messages .gus-banner span { font-size: 12px; color: #6c6c70; }
+.gus-messages .gus-demo { padding: 6px 14px; font-size: 12px; text-align: center; }
+.gus-messages .gus-log { padding: 8px 14px 10px; gap: 5px; background: #fff; }
+.gus-messages .gus-stamp { display: block; margin: 4px 0 6px; text-align: center; font-size: 11px; color: #8e8e93; }
+.gus-messages .gus-delivered { display: block; margin: -2px 6px 0 0; text-align: right; font-size: 11px; font-weight: 500; color: #8e8e93; }
+.gus-messages .gus-bubble { position: relative; max-width: 76%; padding: 7px 13px; border-radius: 18px; font-size: 16px; line-height: 1.32; letter-spacing: -.01em; }
+.gus-messages .gus-row.user .gus-bubble { background: var(--blue); color: #fff; border-bottom-right-radius: 18px; padding-right: 15px; }
+.gus-messages .gus-row:is(.agent, .owner) .gus-bubble { background: var(--gray); color: #000; border: 0; border-bottom-left-radius: 18px; padding-left: 15px; }
+.gus-messages .gus-bubble::before, .gus-messages .gus-bubble::after { content: ""; position: absolute; bottom: 0; height: 18px; }
+.gus-messages .gus-row.user .gus-bubble::before { right: -7px; width: 20px; background: var(--blue); border-bottom-left-radius: 16px 14px; }
+.gus-messages .gus-row.user .gus-bubble::after { right: -26px; width: 26px; background: #fff; border-bottom-left-radius: 10px; }
+.gus-messages .gus-row:is(.agent, .owner) .gus-bubble::before { left: -7px; width: 20px; background: var(--gray); border-bottom-right-radius: 16px 14px; }
+.gus-messages .gus-row:is(.agent, .owner) .gus-bubble::after { left: -26px; width: 26px; background: #fff; border-bottom-right-radius: 10px; }
+.gus-messages .gus-row.user { padding-right: 6px; }
+.gus-messages .gus-row:is(.agent, .owner) { padding-left: 6px; }
+.gus-messages .gus-owner-label { color: #6c6c70; font-size: 11px; }
+.gus-messages .gus-typing { background: var(--gray); border-radius: 18px; }
+.gus-messages .gus-slots-title { font-size: 13px; color: #6c6c70; font-weight: 600; text-align: center; }
+.gus-messages .gus-slot-grid { grid-template-columns: 1fr; gap: 6px; }
+.gus-messages .gus-slot { min-height: 44px; border: 1px solid #d1d1d6; border-radius: 14px; color: var(--blue); font-family: inherit; font-size: 15px; font-weight: 500; }
+.gus-messages .gus-slot:hover { background: #f2f2f7; }
+.gus-messages .gus-note { text-align: center; }
+.gus-messages .gus-form { position: relative; align-items: center; gap: 8px; padding: 6px 10px 6px 12px; border-top: 0; }
+.gus-messages .gus-form::before { content: "+"; flex: none; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #e9e9eb; color: #6c6c70; font-size: 24px; font-weight: 300; line-height: 1; }
+.gus-messages .gus-input { height: 36px; padding: 0 44px 0 14px; border: 1px solid #c7c7cc; border-radius: 18px; font-family: inherit; font-size: 16px; }
+.gus-messages .gus-input:focus { outline: none; border-color: #a1a1a6; }
+.gus-messages .gus-send { position: absolute; right: 14px; top: 50%; width: 28px; height: 28px; min-height: 0; margin-top: -14px; padding: 0; border-radius: 50%; background: var(--blue) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='16' viewBox='0 0 14 16' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 14V2M1.5 7.5 7 2l5.5 5.5'/%3E%3C/svg%3E") center / 14px 16px no-repeat; font-size: 0; color: transparent; }
+.gus-messages .gus-send:disabled { opacity: .35; }
+.gus-messages .gus-consent { padding: 0 14px 4px; font-size: 11px; color: #8e8e93; }
+
 @media (max-width: 1023px) {
   .split-intro h1 { font-size: 34px; }
   .split-tabs { display: inline-flex; }
   .split-panes { grid-template-columns: minmax(0, 1fr); }
   .split[data-pane="chat"] .split-dash, .split[data-pane="dash"] .split-chat { display: none; }
+  .split-chat { display: flex; justify-content: center; }
+  .split-chat .iphone { --bezel: 8px; width: min(100%, 391px); border-radius: 52px; }
+  .split-chat .iphone-screen { border-radius: 44px; }
+  .split-chat .iphone-status { padding-left: 34px; padding-right: 22px; }
   .split-views, .split-bar > b { display: none; }
   .split-bar { justify-content: flex-end; min-height: 0; }
-  .split-chat .gus-inline, .split-stage { height: calc(100svh - 120px); min-height: 520px; }
-  .split-dash[data-view="phone"] .split-stage { padding: 0; background: var(--white); }
-  .split-dash[data-view="phone"] .split-stage iframe { width: 100%; border: 0; border-radius: 0; }
+  .split-dash .split-stage, .split-dash[data-view] .split-stage { height: calc(100svh - 120px); min-height: 520px; padding: 0; background: var(--white); overflow: hidden; }
+  .split-dash .iphone { width: 100%; aspect-ratio: auto; padding: 0; border-radius: 0; background: none; box-shadow: none; }
+  .split-dash .iphone-screen { border-radius: 0; }
+  .split-dash :is(.iphone-btn, .iphone-status, .iphone-home) { display: none; }
+  .split-dash .iphone-app { padding-bottom: 0; }
 }

@@ -44,7 +44,14 @@
   </div>
   <div class="wrap split-panes">
     <section class="split-chat" aria-label="Chat with Gus, as the customer">
-      <div data-gus-inline></div>
+      <div class="iphone">
+          <span class="iphone-btn iphone-action"></span><span class="iphone-btn iphone-vol-up"></span><span class="iphone-btn iphone-vol-down"></span><span class="iphone-btn iphone-power"></span>
+          <div class="iphone-screen">
+            <div class="iphone-status" aria-hidden="true"><span class="iphone-time" data-iphone-time>9:41</span><span class="iphone-island"></span><span class="iphone-icons"><svg width="18" height="12" viewBox="0 0 18 12" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><path d="M8 11.5 5.6 9.1a3.4 3.4 0 0 1 4.8 0z"/><path d="M3.4 6.9a6.5 6.5 0 0 1 9.2 0l-1.3 1.3a4.7 4.7 0 0 0-6.6 0z"/><path d="M1.2 4.7a9.6 9.6 0 0 1 13.6 0l-1.3 1.3a7.8 7.8 0 0 0-11 0z"/></svg><svg width="27" height="13" viewBox="0 0 27 13" aria-hidden="true"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="2" y="2" width="17" height="9" rx="2"/><path d="M24 4.5v4a2 2 0 0 0 0-4z" fill-opacity=".4"/></svg></span></div>
+            <div class="iphone-app"><div data-gus-inline data-gus-messages></div></div>
+            <span class="iphone-home" aria-hidden="true"></span>
+          </div>
+        </div>
     </section>
     <section class="split-dash" data-view="desktop" aria-label="Larkspur's owner dashboard">
       <div class="split-bar">
@@ -57,10 +64,19 @@
         <a class="split-link" href="/portal/owner" target="_blank" rel="noopener">Full page</a>
       </div>
       <p class="notice error" id="split-status" role="alert" hidden></p>
-      <div class="split-stage"><iframe data-split-frame title="Larkspur's owner dashboard" src="about:blank"></iframe></div>
+      <div class="split-stage">
+        <div class="iphone">
+          <span class="iphone-btn iphone-action"></span><span class="iphone-btn iphone-vol-up"></span><span class="iphone-btn iphone-vol-down"></span><span class="iphone-btn iphone-power"></span>
+          <div class="iphone-screen">
+            <div class="iphone-status" aria-hidden="true"><span class="iphone-time" data-iphone-time>9:41</span><span class="iphone-island"></span><span class="iphone-icons"><svg width="18" height="12" viewBox="0 0 18 12" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><path d="M8 11.5 5.6 9.1a3.4 3.4 0 0 1 4.8 0z"/><path d="M3.4 6.9a6.5 6.5 0 0 1 9.2 0l-1.3 1.3a4.7 4.7 0 0 0-6.6 0z"/><path d="M1.2 4.7a9.6 9.6 0 0 1 13.6 0l-1.3 1.3a7.8 7.8 0 0 0-11 0z"/></svg><svg width="27" height="13" viewBox="0 0 27 13" aria-hidden="true"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="2" y="2" width="17" height="9" rx="2"/><path d="M24 4.5v4a2 2 0 0 0 0-4z" fill-opacity=".4"/></svg></span></div>
+            <div class="iphone-app"><iframe data-split-frame title="Larkspur's owner dashboard" src="about:blank"></iframe></div>
+            <span class="iphone-home" aria-hidden="true"></span>
+          </div>
+        </div>
+      </div>
     </section>
   </div>
-  <p class="wrap notice">Larkspur is a fictional business, and in the chat you play Sam Rivera, so you never type your own details. Your copy, and everything you typed, is deleted 2 hours after your last click. What you type to Gus is processed by an AI provider. Nothing is e-mailed or texted, and card payments are switched off: Mark paid only records a payment.</p>
+  <p class="wrap notice">Larkspur is a fictional business, and in the chat you play Sam Rivera, so you never type your own details. Your copy, and everything you typed, is deleted 2 hours after your last click. What you type to Gus is processed by an AI provider. Gus's e-mails and texts are switched off in the demo, so nothing reaches a real inbox or phone, and card payments are off too: Mark paid only records a payment.</p>
 </main>
 <footer class="footer">
   <div class="wrap">

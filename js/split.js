@@ -123,5 +123,19 @@
     });
   });
 
+  // The phones' status-bar clock, in Larkspur's time zone.
+  const clockFmt = new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: window.LARKSPUR.timeZone || "America/Los_Angeles",
+  });
+  function tick() {
+    const label = clockFmt.format(new Date()).replace(/\s?[AP]M$/, "");
+    document.querySelectorAll("[data-iphone-time]").forEach((node) => (node.textContent = label));
+  }
+  tick();
+  window.setInterval(tick, 30000);
+
   open();
 })();
