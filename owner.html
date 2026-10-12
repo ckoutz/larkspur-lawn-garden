@@ -40,6 +40,7 @@
     <div class="split-tabs" role="group" aria-label="Show">
       <button type="button" data-pane-tab="chat" aria-pressed="true">Chat</button>
       <button type="button" data-pane-tab="dash" aria-pressed="false">Dashboard<span class="split-new" hidden> · new</span></button>
+      <button type="button" data-pane-tab="texts" aria-pressed="false">Texts</button>
     </div>
   </div>
   <div class="wrap split-panes">
@@ -52,6 +53,7 @@
         <div class="split-views" role="group" aria-label="Dashboard size">
           <button type="button" data-view-btn="desktop" aria-pressed="true">Computer</button>
           <button type="button" data-view-btn="phone" aria-pressed="false">Phone</button>
+          <button type="button" data-view-btn="texts" aria-pressed="false">Texts</button>
         </div>
         <button type="button" class="split-link" data-split-refresh>Refresh</button>
         <a class="split-link" href="/portal/owner" target="_blank" rel="noopener">Full page</a>
@@ -63,6 +65,23 @@
           <div class="iphone-screen">
             <div class="iphone-status" aria-hidden="true"><span class="iphone-time" data-iphone-time>9:41</span><span class="iphone-island"></span><span class="iphone-icons"><svg width="18" height="12" viewBox="0 0 18 12" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><path d="M8 11.5 5.6 9.1a3.4 3.4 0 0 1 4.8 0z"/><path d="M3.4 6.9a6.5 6.5 0 0 1 9.2 0l-1.3 1.3a4.7 4.7 0 0 0-6.6 0z"/><path d="M1.2 4.7a9.6 9.6 0 0 1 13.6 0l-1.3 1.3a7.8 7.8 0 0 0-11 0z"/></svg><svg width="27" height="13" viewBox="0 0 27 13" aria-hidden="true"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="2" y="2" width="17" height="9" rx="2"/><path d="M24 4.5v4a2 2 0 0 0 0-4z" fill-opacity=".4"/></svg></span></div>
             <div class="iphone-app"><iframe data-split-frame title="Larkspur's owner dashboard" src="about:blank"></iframe></div>
+            <div class="iphone-texts" data-texts>
+              <div class="msg-head"><svg class="msg-back" width="12" height="20" viewBox="0 0 12 20" aria-hidden="true"><path d="M10 2 2 10l8 8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="msg-avatar" aria-hidden="true">G</span><b>Gus</b><small>Larkspur's office assistant</small></div>
+              <div class="msg-list" data-texts-list role="log" aria-live="polite" aria-label="Texts with Gus">
+                <p class="msg-note">You're the owner now. Text Gus about your copy of Larkspur: the schedule, what needs you, what's outstanding, a customer or a quote. By text he only reads for now. In the demo this runs in the page, so nothing is actually texted.</p>
+              </div>
+              <div class="msg-chips" data-texts-chips>
+                <button type="button">What's on tomorrow?</button>
+                <button type="button">What needs me?</button>
+                <button type="button">What's outstanding?</button>
+                <button type="button">When is Sam Rivera's visit?</button>
+              </div>
+              <form class="msg-bar" data-texts-form>
+                <span class="msg-plus" aria-hidden="true">+</span>
+                <input data-texts-input type="text" maxlength="500" autocomplete="off" placeholder="Text Message" aria-label="Text Gus">
+                <button type="submit" aria-label="Send"><svg width="14" height="16" viewBox="0 0 14 16" aria-hidden="true"><path d="M7 14V2M2 7l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              </form>
+            </div>
             <span class="iphone-home" aria-hidden="true"></span>
           </div>
         </div>
