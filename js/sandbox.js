@@ -37,6 +37,7 @@
 
   let current = read();
   let creating = null;
+  let replaced = false;
 
   async function post(path, token) {
     const headers = { accept: "application/json" };
@@ -62,6 +63,11 @@
         if (saved) return (current = saved);
         current = { publicKey: body.publicKey, sandboxToken: body.sandboxToken };
         write(current);
+        // The old copy was deleted: tell the chat, dashboard and Texts to move here.
+        if (replaced) {
+          replaced = false;
+          setTimeout(() => document.dispatchEvent(new CustomEvent("larkspur:new-copy")));
+        }
         return current;
       })().finally(() => {
         creating = null;
@@ -75,6 +81,7 @@
   function forget(publicKey) {
     const saved = current || read();
     if (publicKey && saved && saved.publicKey !== publicKey) return;
+    if (saved) replaced = true;
     current = null;
     write(null);
   }
@@ -104,7 +111,6 @@
   // The demo's Texts view: the owner texts Gus about their own copy. Read only;
   // nothing is texted.
   async function ownerText(text, history) {
-    let renewed = false;
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const sandbox = await ensure();
       if (!sandbox) throw new SandboxError(404);
@@ -119,14 +125,10 @@
       });
       if (res.status === 401) {
         forget(sandbox.publicKey);
-        renewed = true;
         continue;
       }
       if (!res.ok) throw new SandboxError(res.status);
-      const { reply } = await res.json();
-      // The old copy was deleted: the chat and dashboard must move to this one.
-      if (renewed) document.dispatchEvent(new CustomEvent("larkspur:new-copy"));
-      return reply;
+      return (await res.json()).reply;
     }
     throw new SandboxError(401);
   }

@@ -357,7 +357,12 @@
         if (this.greeting) this.messages.push(this.greeting);
         this.render();
       } catch (err) {
-        if (this.stored?.conversationId === stored.conversationId && err instanceof HttpError && err.status === 401) {
+        // 404: the visitor's demo copy, and the conversation with it, was deleted.
+        if (
+          this.stored?.conversationId === stored.conversationId &&
+          err instanceof HttpError &&
+          (err.status === 401 || err.status === 404)
+        ) {
           writeStored(null);
           this.phase = "expired";
           this.render();

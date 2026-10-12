@@ -103,8 +103,8 @@
 
   document.querySelector("[data-split-refresh]").addEventListener("click", reload);
 
-  // The Texts view made a new copy (the old one was deleted): the dashboard
-  // signs in to it, and the chat finds out its conversation is gone.
+  // A new copy replaced a deleted one: the dashboard signs in to it, and the
+  // chat finds out its conversation is gone.
   document.addEventListener("larkspur:new-copy", () => {
     reload();
     document.dispatchEvent(new CustomEvent("gus:refresh"));
