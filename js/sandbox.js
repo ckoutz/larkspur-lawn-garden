@@ -47,11 +47,21 @@
 
   // Resolves to the visitor's copy, or null where sandboxes are off (the shared
   // demo business is used then).
+  // The old copy was deleted: tell the chat, dashboard and Texts to move here.
+  function announce() {
+    if (!replaced) return;
+    replaced = false;
+    setTimeout(() => document.dispatchEvent(new CustomEvent("larkspur:new-copy")));
+  }
+
   function ensure() {
     if (!cfg.sandbox) return Promise.resolve(null);
     // Another tab may have made the copy since this page loaded.
     current = current || read();
-    if (current) return Promise.resolve(current);
+    if (current) {
+      announce();
+      return Promise.resolve(current);
+    }
     if (!creating) {
       creating = (async () => {
         const res = await post("/v1/demo/sandboxes");
@@ -62,11 +72,7 @@
         const saved = read();
         current = saved || { publicKey: body.publicKey, sandboxToken: body.sandboxToken };
         if (!saved) write(current);
-        // The old copy was deleted: tell the chat, dashboard and Texts to move here.
-        if (replaced) {
-          replaced = false;
-          setTimeout(() => document.dispatchEvent(new CustomEvent("larkspur:new-copy")));
-        }
+        announce();
         return current;
       })().finally(() => {
         creating = null;
