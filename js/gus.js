@@ -393,9 +393,6 @@
       }
 
       const nodes = [];
-      // Shown only in the phone (Messages) look.
-      this.startedAt = this.startedAt || new Date();
-      nodes.push(el("p", "gus-stamp", `Today ${timeFmt.format(this.startedAt)}`));
       if (this.phase === "booting" && this.messages.length === 0) {
         nodes.push(el("p", "gus-muted", "Starting your conversation…"));
       }
@@ -407,8 +404,7 @@
         row.append(bubble);
         nodes.push(row);
       });
-      const last = this.messages[this.messages.length - 1];
-      if (last && last.role === "user" && this.phase !== "sending") nodes.push(el("p", "gus-delivered", "Delivered"));
+
       if (this.phase === "sending") {
         const row = el("div", "gus-row agent");
         const dots = el("div", "gus-typing");
@@ -508,28 +504,9 @@
     return head;
   }
 
-  const BACK_ICON =
-    '<svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2 2 10l8 8"/></svg>';
-
-  // A phone Messages-style contact header (the owner view's phone).
-  function messagesHeader() {
-    const head = el("div", "gus-mhead");
-    const back = el("span", "gus-mback");
-    back.innerHTML = BACK_ICON;
-    back.setAttribute("aria-hidden", "true");
-    const who = el("div", "gus-mwho");
-    const avatar = el("span", "gus-mavatar", "G");
-    avatar.setAttribute("aria-hidden", "true");
-    who.append(avatar, el("span", "gus-mname", "Gus · Larkspur"));
-    head.append(back, who);
-    return head;
-  }
-
   function mountInline(host) {
     host.classList.add("gus-inline");
-    const messages = host.hasAttribute("data-gus-messages");
-    if (messages) host.classList.add("gus-messages");
-    host.append(messages ? messagesHeader() : chatHeader(null));
+    host.append(chatHeader(null));
     const body = el("div");
     host.append(body);
     new GusChat(body);

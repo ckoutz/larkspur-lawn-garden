@@ -337,47 +337,12 @@ button:disabled.btn { opacity: .6; cursor: default; }
 .split-dash[data-view="desktop"] :is(.iphone-btn, .iphone-status, .iphone-home) { display: none; }
 .split-dash[data-view="desktop"] .iphone-app { padding-bottom: 0; }
 
-/* Gus as a Messages-style thread inside the phone */
-.gus-stamp, .gus-delivered { display: none; }
-.gus-messages { --blue: #0a7cff; --gray: #e9e9eb; height: 100%; border: 0; border-radius: 0; font-family: inherit; color: #000; }
-.gus-messages .gus { background: #fff; }
-.gus-mhead { position: relative; flex: none; display: flex; justify-content: center; padding: 4px 16px 10px; background: #f9f9f9; border-bottom: .5px solid #c6c6c8; }
-.gus-mback { position: absolute; left: 16px; top: 16px; color: var(--blue); }
-.gus-mwho { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.gus-mavatar { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(#a5aab3, #858a93); color: #fff; font-size: 21px; font-weight: 600; }
-.gus-mname { font-size: 12px; color: #000; }
-.gus-mname::after { content: " ›"; color: #8e8e93; }
-.gus-messages .gus-banner { padding: 8px 14px; background: #f2f2f7; border-bottom: .5px solid #c6c6c8; text-align: center; }
-.gus-messages .gus-banner b { font-size: 13px; color: #000; }
-.gus-messages .gus-banner span { font-size: 12px; color: #6c6c70; }
-.gus-messages .gus-demo { padding: 6px 14px; font-size: 12px; text-align: center; }
-.gus-messages .gus-log { padding: 8px 14px 10px; gap: 5px; background: #fff; overflow-x: hidden; }
-.gus-messages .gus-stamp { display: block; margin: 4px 0 6px; text-align: center; font-size: 11px; color: #8e8e93; }
-.gus-messages .gus-delivered { display: block; margin: -2px 6px 0 0; text-align: right; font-size: 11px; font-weight: 500; color: #8e8e93; }
-.gus-messages .gus-bubble { position: relative; max-width: 76%; padding: 7px 13px; border-radius: 18px; font-size: 16px; line-height: 1.32; letter-spacing: -.01em; }
-.gus-messages .gus-row.user .gus-bubble { background: var(--blue); color: #fff; border-bottom-right-radius: 18px; padding-right: 15px; }
-.gus-messages .gus-row:is(.agent, .owner) .gus-bubble { background: var(--gray); color: #000; border: 0; border-bottom-left-radius: 18px; padding-left: 15px; }
-.gus-messages .gus-bubble::before, .gus-messages .gus-bubble::after { content: ""; position: absolute; bottom: 0; height: 18px; }
-.gus-messages .gus-row.user .gus-bubble::before { right: -7px; width: 20px; background: var(--blue); border-bottom-left-radius: 16px 14px; }
-.gus-messages .gus-row.user .gus-bubble::after { right: -26px; width: 26px; background: #fff; border-bottom-left-radius: 10px; }
-.gus-messages .gus-row:is(.agent, .owner) .gus-bubble::before { left: -7px; width: 20px; background: var(--gray); border-bottom-right-radius: 16px 14px; }
-.gus-messages .gus-row:is(.agent, .owner) .gus-bubble::after { left: -26px; width: 26px; background: #fff; border-bottom-right-radius: 10px; }
-.gus-messages .gus-row.user { padding-right: 6px; }
-.gus-messages .gus-row:is(.agent, .owner) { padding-left: 6px; }
-.gus-messages .gus-owner-label { color: #6c6c70; font-size: 11px; }
-.gus-messages .gus-typing { background: var(--gray); border-radius: 18px; }
-.gus-messages .gus-slots-title { font-size: 13px; color: #6c6c70; font-weight: 600; text-align: center; }
-.gus-messages .gus-slot-grid { grid-template-columns: 1fr; gap: 6px; }
-.gus-messages .gus-slot { min-height: 44px; border: 1px solid #d1d1d6; border-radius: 14px; color: var(--blue); font-family: inherit; font-size: 15px; font-weight: 500; }
-.gus-messages .gus-slot:hover { background: #f2f2f7; }
-.gus-messages .gus-note { text-align: center; }
-.gus-messages .gus-form { position: relative; align-items: center; gap: 8px; padding: 6px 10px 6px 12px; border-top: 0; }
-.gus-messages .gus-form::before { content: "+"; flex: none; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #e9e9eb; color: #6c6c70; font-size: 24px; font-weight: 300; line-height: 1; }
-.gus-messages .gus-input { height: 36px; padding: 0 44px 0 14px; border: 1px solid #c7c7cc; border-radius: 18px; font-family: inherit; font-size: 16px; }
-.gus-messages .gus-input:focus { outline: none; border-color: #a1a1a6; }
-.gus-messages .gus-send { position: absolute; right: 14px; top: 50%; width: 28px; height: 28px; min-height: 0; margin-top: -14px; padding: 0; border-radius: 50%; background: var(--blue) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='16' viewBox='0 0 14 16' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 14V2M1.5 7.5 7 2l5.5 5.5'/%3E%3C/svg%3E") center / 14px 16px no-repeat; font-size: 0; color: transparent; }
-.gus-messages .gus-send:disabled { opacity: .35; }
-.gus-messages .gus-consent { padding: 0 14px 4px; font-size: 11px; color: #8e8e93; }
+/* The chat phone shows Larkspur's site in a phone browser */
+.iphone-url { flex: none; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0 12px 8px; height: 36px; border-radius: 12px; background: #e9e9eb; color: #1c1c1e; font-size: 15px; letter-spacing: -.01em; }
+.iphone-url svg { flex: none; fill: #6c6c70; }
+.iphone-status, .iphone-chrome { background: #f2f2f4; }
+.iphone-chrome { flex: none; border-bottom: .5px solid #c6c6c8; }
+.iphone .gus-inline { flex: 1; min-height: 0; height: auto; border: 0; border-radius: 0; }
 
 @media (max-width: 1023px) {
   .split-intro h1 { font-size: 34px; }
