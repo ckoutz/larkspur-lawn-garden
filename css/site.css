@@ -298,7 +298,7 @@ button:disabled.btn { opacity: .6; cursor: default; }
 .split-intro { display: flex; flex-direction: column; gap: 12px; }
 .split-intro h1 { font-weight: 800; font-size: 44px; line-height: 1.05; letter-spacing: -.025em; }
 .split-intro .lede { max-width: 860px; margin: 0; }
-.split-panes { display: grid; grid-template-columns: 397px minmax(0, 1fr); gap: 32px; align-items: start; }
+.split-panes { display: grid; grid-template-columns: minmax(340px, 420px) minmax(0, 1fr); gap: 24px; align-items: start; }
 .split-dash { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .split-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; min-height: 48px; }
 .split-bar > b { margin-right: auto; font-family: var(--display); font-size: 20px; }
@@ -337,22 +337,14 @@ button:disabled.btn { opacity: .6; cursor: default; }
 .split-dash[data-view="desktop"] :is(.iphone-btn, .iphone-status, .iphone-home) { display: none; }
 .split-dash[data-view="desktop"] .iphone-app { padding-bottom: 0; }
 
-/* The chat phone shows Larkspur's site in a phone browser */
-.iphone-url { flex: none; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0 12px 8px; height: 36px; border-radius: 12px; background: #e9e9eb; color: #1c1c1e; font-size: 15px; letter-spacing: -.01em; }
-.iphone-url svg { flex: none; fill: #6c6c70; }
-.iphone-status, .iphone-chrome { background: #f2f2f4; }
-.iphone-chrome { flex: none; border-bottom: .5px solid #c6c6c8; }
-.iphone .gus-inline { flex: 1; min-height: 0; height: auto; border: 0; border-radius: 0; }
+.split-chat .gus-inline { height: 834px; }
 
 @media (max-width: 1023px) {
   .split-intro h1 { font-size: 34px; }
   .split-tabs { display: inline-flex; }
   .split-panes { grid-template-columns: minmax(0, 1fr); }
   .split[data-pane="chat"] .split-dash, .split[data-pane="dash"] .split-chat { display: none; }
-  .split-chat { display: flex; justify-content: center; }
-  .split-chat .iphone { --bezel: 8px; width: min(100%, 391px); border-radius: 52px; }
-  .split-chat .iphone-screen { border-radius: 44px; }
-  .split-chat .iphone-status { padding-left: 34px; padding-right: 22px; }
+  .split-chat .gus-inline { height: calc(100svh - 120px); min-height: 520px; }
   .split-views, .split-bar > b { display: none; }
   .split-bar { justify-content: flex-end; min-height: 0; }
   .split-dash .split-stage, .split-dash[data-view] .split-stage { height: calc(100svh - 120px); min-height: 520px; padding: 0; background: var(--white); overflow: hidden; }
