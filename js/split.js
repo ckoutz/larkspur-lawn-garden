@@ -113,18 +113,83 @@
   document.querySelectorAll("[data-view-btn]").forEach((button) => {
     button.addEventListener("click", () => setView(button.dataset.viewBtn));
   });
-  setView(recall(VIEW) === "phone" ? "phone" : "desktop");
+  const saved = recall(VIEW);
+  setView(saved === "phone" || saved === "texts" ? saved : "desktop");
 
-  // Narrow screens show one side at a time.
+  // Narrow screens show one side at a time; Texts is the dashboard side's Texts view.
   document.querySelectorAll("[data-pane-tab]").forEach((button) => {
     button.addEventListener("click", () => {
-      main.dataset.pane = button.dataset.paneTab;
+      const tab = button.dataset.paneTab;
+      main.dataset.pane = tab === "chat" ? "chat" : "dash";
+      if (tab === "texts") setView("texts");
+      else if (tab === "dash" && box.dataset.view === "texts") setView("desktop");
       document.querySelectorAll("[data-pane-tab]").forEach((other) => {
         other.setAttribute("aria-pressed", String(other === button));
       });
-      if (button.dataset.paneTab === "dash" && newBadge) newBadge.hidden = true;
+      if (tab === "dash" && newBadge) newBadge.hidden = true;
     });
   });
+
+  // Texts view: the owner texts Gus, answered by the demo backend in the page.
+  const texts = document.querySelector("[data-texts]");
+  if (texts) {
+    const list = texts.querySelector("[data-texts-list]");
+    const form = texts.querySelector("[data-texts-form]");
+    const input = texts.querySelector("[data-texts-input]");
+    const send = form.querySelector("button");
+    const history = [];
+    let busy = false;
+    const stamp = new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: window.LARKSPUR.timeZone || "America/Los_Angeles",
+    });
+    function add(cls, text) {
+      const node = document.createElement("p");
+      node.className = cls;
+      node.textContent = text;
+      list.append(node);
+      list.scrollTop = list.scrollHeight;
+      return node;
+    }
+    function failure(err) {
+      if (err && err.status === 429) return "That's a lot of texts at once. Give it a minute and try again.";
+      if (err && err.status === 503) return "Texts are off on the demo right now.";
+      return "I couldn't answer just now. Please try again in a moment.";
+    }
+    async function ask(text) {
+      text = text.trim().slice(0, 500);
+      if (!text || busy) return;
+      busy = true;
+      send.disabled = true;
+      if (!list.querySelector(".msg")) add("msg-time", `Today ${stamp.format(new Date())}`);
+      list.querySelectorAll(".msg-delivered").forEach((node) => node.remove());
+      add("msg sent", text);
+      const delivered = add("msg-delivered", "Delivered");
+      const typing = add("msg got typing", "•••");
+      let reply;
+      try {
+        reply = await window.LarkspurSandbox.ownerText(text, history.slice(-10));
+        history.push({ role: "owner", text }, { role: "assistant", text: reply.slice(0, 1000) });
+      } catch (err) {
+        reply = failure(err);
+      }
+      typing.remove();
+      delivered.remove();
+      add("msg got", reply);
+      busy = false;
+      send.disabled = false;
+    }
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const text = input.value;
+      input.value = "";
+      ask(text);
+    });
+    texts.querySelectorAll("[data-texts-chips] button").forEach((chip) => {
+      chip.addEventListener("click", () => ask(chip.textContent));
+    });
+  }
 
   // The phones' status-bar clock, in Larkspur's time zone.
   const clockFmt = new Intl.DateTimeFormat("en-US", {

@@ -308,7 +308,7 @@ button:disabled.btn { opacity: .6; cursor: default; }
 .split-link { min-height: 44px; display: inline-flex; align-items: center; border: 0; background: none; padding: 0; font: inherit; font-weight: 700; color: var(--green-dark); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .split-stage { display: flex; justify-content: center; border: 1px solid var(--line); border-radius: 24px; overflow: hidden; background: var(--white); }
 .split-stage iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--white); }
-.split-dash[data-view="phone"] .split-stage { padding: 24px 0; background: var(--chip); overflow: visible; }
+.split-dash:is([data-view="phone"], [data-view="texts"]) .split-stage { padding: 24px 0; background: var(--chip); overflow: visible; }
 .split-tabs { display: none; align-self: flex-start; }
 .split-new { color: var(--star); }
 .split-tabs button[aria-pressed="false"] .split-new { color: var(--green); }
@@ -328,6 +328,31 @@ button:disabled.btn { opacity: .6; cursor: default; }
 .iphone-icons svg { fill: currentColor; }
 .iphone-app { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; padding-bottom: 30px; background: #fff; }
 .iphone-app > iframe { flex: 1; height: auto; }
+/* Texts view: the owner's Messages thread with Gus */
+.iphone-texts { flex: 1; min-height: 0; display: flex; flex-direction: column; padding-bottom: 30px; background: #fff; color: #000; font-size: 16px; }
+.split-dash[data-view="texts"] .iphone-app, .split-dash:not([data-view="texts"]) .iphone-texts { display: none; }
+.msg-head { flex: none; display: grid; grid-template-columns: 24px 1fr 24px; grid-template-rows: auto auto; justify-items: center; align-items: center; padding: 4px 12px 8px; background: #f9f9f9; border-bottom: .5px solid #d1d1d6; }
+.msg-back { grid-row: 1 / 3; grid-column: 1; color: #0a7cff; }
+.msg-avatar { grid-column: 2; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: linear-gradient(#a5abb8, #858994); color: #fff; font-weight: 600; font-size: 18px; }
+.msg-head b { grid-column: 2; font-size: 12px; font-weight: 500; margin-top: 3px; }
+.msg-head small { grid-column: 2; font-size: 11px; color: #8e8e93; }
+.msg-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; }
+.msg-note { margin: 0 8px 12px; font-size: 12px; line-height: 1.4; color: #8e8e93; text-align: center; }
+.msg-time { margin: 10px 0 6px; font-size: 11px; color: #8e8e93; text-align: center; }
+.msg { position: relative; max-width: 78%; padding: 7px 12px; border-radius: 18px; line-height: 1.3; white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg.sent { align-self: flex-end; background: #0a7cff; color: #fff; }
+.msg.got { align-self: flex-start; background: #e9e9eb; color: #000; }
+.msg.sent:last-of-type, .msg.sent + .msg.got, .msg.got + .msg.sent { margin-top: 6px; }
+.msg.typing { color: #8e8e93; letter-spacing: 2px; }
+.msg-delivered { align-self: flex-end; margin: 1px 4px 0; font-size: 11px; color: #8e8e93; }
+.msg-chips { flex: none; display: flex; gap: 6px; overflow-x: auto; padding: 6px 12px; scrollbar-width: none; }
+.msg-chips::-webkit-scrollbar { display: none; }
+.msg-chips button { flex: none; padding: 6px 12px; border: 1px solid #d1d1d6; border-radius: 999px; background: #fff; color: #0a7cff; font: inherit; font-size: 13px; cursor: pointer; }
+.msg-bar { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 10px; }
+.msg-plus { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: #e9e9eb; color: #8e8e93; font-size: 22px; }
+.msg-bar input { flex: 1; min-width: 0; height: 36px; padding: 0 14px; border: 1px solid #d1d1d6; border-radius: 18px; font: inherit; font-size: 16px; }
+.msg-bar button { width: 30px; height: 30px; display: grid; place-items: center; border: 0; border-radius: 50%; background: #0a7cff; color: #fff; cursor: pointer; }
+.msg-bar button:disabled { background: #b8d7ff; cursor: default; }
 .iphone-home { position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: #111; }
 
 /* The dashboard's Computer view: no phone around it */
@@ -352,4 +377,5 @@ button:disabled.btn { opacity: .6; cursor: default; }
   .split-dash .iphone-screen { border-radius: 0; }
   .split-dash :is(.iphone-btn, .iphone-status, .iphone-home) { display: none; }
   .split-dash .iphone-app { padding-bottom: 0; }
+  .split-dash .iphone-texts { padding-bottom: 0; }
 }

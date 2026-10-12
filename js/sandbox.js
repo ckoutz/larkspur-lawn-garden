@@ -101,11 +101,36 @@
     throw new SandboxError(401);
   }
 
+  // The demo's Texts view: the owner texts Gus about their own copy. Read only;
+  // nothing is texted.
+  async function ownerText(text, history) {
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const sandbox = await ensure();
+      if (!sandbox) throw new SandboxError(404);
+      const res = await fetch(cfg.apiUrl + "/v1/demo/sandboxes/owner-texts", {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+          authorization: `Bearer ${sandbox.sandboxToken}`,
+        },
+        body: JSON.stringify({ text, history }),
+      });
+      if (res.status === 401) {
+        forget(sandbox.publicKey);
+        continue;
+      }
+      if (!res.ok) throw new SandboxError(res.status);
+      return (await res.json()).reply;
+    }
+    throw new SandboxError(401);
+  }
+
   async function openOwnerView() {
     window.location.assign(await ownerSignInPath());
   }
 
-  window.LarkspurSandbox = { ensure, forget, businessKey, ownerSignInPath, openOwnerView, SandboxError };
+  window.LarkspurSandbox = { ensure, forget, businessKey, ownerSignInPath, ownerText, openOwnerView, SandboxError };
 
   document.querySelectorAll("[data-owner-view]").forEach((button) => {
     const status = document.getElementById(button.getAttribute("aria-describedby") || "");
