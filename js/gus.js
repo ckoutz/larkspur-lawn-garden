@@ -55,6 +55,12 @@
       return { role: m.role, content: pick ? pickLabel(m.content) : m.content, pick };
     });
   }
+  // Offered times kept per pick, so a resumed chat shows each pick with its own offer.
+  function offersOf(stored) {
+    const offers = stored && stored.offers;
+    return offers && !Array.isArray(offers) ? offers : {};
+  }
+
   function sameTime(a, b) {
     return new Date(a).getTime() === new Date(b).getTime();
   }
@@ -269,7 +275,9 @@
         });
         this.stored = stored;
         this.applyView(res);
-        this.greeting = res.booking ? { role: "agent", content: returningGreeting(res.booking) } : null;
+        this.greeting = res.booking
+          ? { role: "agent", content: returningGreeting(res.booking), confirmed: res.booking.status === "confirmed" }
+          : null;
         if (this.greeting) this.messages.push(this.greeting);
         this.phase = "ready";
         this.render();
@@ -313,7 +321,7 @@
         if (res.reply) this.messages.push({ role: "agent", content: res.reply });
         // Keep the offered times in the transcript once one is picked.
         if (echoed.pick && previousSlots) {
-          this.stored.offers = [...(this.stored.offers || []), previousSlots];
+          this.stored.offers = { ...offersOf(this.stored), [echoed.pick]: previousSlots };
           writeStored(this.stored);
         }
         this.phase = "ready";
@@ -365,11 +373,13 @@
       const stored = this.stored;
       if (this.phase !== "ready" || !stored) return;
       const seq = this.seq;
+      this.pollSeq = (this.pollSeq || 0) + 1;
+      const ticket = this.pollSeq;
       try {
         const res = await api(`/v1/intake/conversations/${enc(stored.conversationId)}`, {
           token: stored.conversationToken,
         });
-        if (this.stored?.conversationId !== stored.conversationId || this.phase !== "ready" || seq !== this.seq) return;
+        if (this.stored?.conversationId !== stored.conversationId || this.phase !== "ready" || seq !== this.seq || ticket !== this.pollSeq) return;
         this.applyView(res);
         if (this.greeting) this.messages.push(this.greeting);
         this.render();
@@ -418,14 +428,9 @@
       if (this.phase === "booting" && this.messages.length === 0) {
         nodes.push(el("p", "gus-muted", "Starting your conversation…"));
       }
-      const offers = (this.stored && this.stored.offers) || [];
-      let picks = 0;
+      const offers = offersOf(this.stored);
       this.messages.forEach((m) => {
-        if (m.pick) {
-          const offered = offers[picks];
-          picks += 1;
-          if (offered) nodes.push(this.offered(offered, m.pick));
-        }
+        if (m.pick && offers[m.pick]) nodes.push(this.offered(offers[m.pick], m.pick));
         const row = el("div", `gus-row ${m.role}`);
         const bubble = el("div", "gus-bubble");
         if (m.role === "owner") bubble.append(el("span", "gus-owner-label", "Larkspur"));
@@ -435,7 +440,7 @@
       });
 
       // The owner approved: say so in the chat too, not only in the banner.
-      if (this.booking && this.booking.status === "confirmed" && !terminal && !this.greeting) {
+      if (this.booking && this.booking.status === "confirmed" && !terminal && !(this.greeting && this.greeting.confirmed)) {
         const row = el("div", "gus-row agent");
         row.append(el("div", "gus-bubble", `Good news: Larkspur approved your request. Your walk-through is booked for ${bookingLabel(this.booking)}.`));
         nodes.push(row);
