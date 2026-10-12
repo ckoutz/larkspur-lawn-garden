@@ -104,6 +104,7 @@
   // The demo's Texts view: the owner texts Gus about their own copy. Read only;
   // nothing is texted.
   async function ownerText(text, history) {
+    let renewed = false;
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const sandbox = await ensure();
       if (!sandbox) throw new SandboxError(404);
@@ -118,10 +119,14 @@
       });
       if (res.status === 401) {
         forget(sandbox.publicKey);
+        renewed = true;
         continue;
       }
       if (!res.ok) throw new SandboxError(res.status);
-      return (await res.json()).reply;
+      const { reply } = await res.json();
+      // The old copy was deleted: the chat and dashboard must move to this one.
+      if (renewed) document.dispatchEvent(new CustomEvent("larkspur:new-copy"));
+      return reply;
     }
     throw new SandboxError(401);
   }

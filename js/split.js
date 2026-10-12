@@ -103,6 +103,13 @@
 
   document.querySelector("[data-split-refresh]").addEventListener("click", reload);
 
+  // The Texts view made a new copy (the old one was deleted): the dashboard
+  // signs in to it, and the chat finds out its conversation is gone.
+  document.addEventListener("larkspur:new-copy", () => {
+    reload();
+    document.dispatchEvent(new CustomEvent("gus:refresh"));
+  });
+
   function setView(view) {
     box.dataset.view = view;
     document.querySelectorAll("[data-view-btn]").forEach((button) => {
@@ -139,11 +146,16 @@
     const send = form.querySelector("button");
     const history = [];
     let busy = false;
-    const stamp = new Intl.DateTimeFormat("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      timeZone: window.LARKSPUR.timeZone || "America/Los_Angeles",
-    });
+    const zone = window.LARKSPUR.timeZone || "America/Los_Angeles";
+    const stamp = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: zone });
+    const larkspurDay = new Intl.DateTimeFormat("en-CA", { timeZone: zone });
+    const visitorDay = new Intl.DateTimeFormat("en-CA");
+    const weekday = new Intl.DateTimeFormat("en-US", { weekday: "short", timeZone: zone });
+    // "Today" only when Larkspur's date is also the visitor's date.
+    function timeLabel(now) {
+      const day = larkspurDay.format(now) === visitorDay.format(now) ? "Today" : weekday.format(now);
+      return `${day} ${stamp.format(now)}`;
+    }
     function add(cls, text) {
       const node = document.createElement("p");
       node.className = cls;
@@ -162,7 +174,7 @@
       if (!text || busy) return;
       busy = true;
       send.disabled = true;
-      if (!list.querySelector(".msg")) add("msg-time", `Today ${stamp.format(new Date())}`);
+      if (!list.querySelector(".msg")) add("msg-time", timeLabel(new Date()));
       list.querySelectorAll(".msg-delivered").forEach((node) => node.remove());
       add("msg sent", text);
       const delivered = add("msg-delivered", "Delivered");
@@ -180,6 +192,11 @@
       busy = false;
       send.disabled = false;
     }
+    // Earlier answers were about the deleted copy.
+    document.addEventListener("larkspur:new-copy", () => {
+      history.length = 0;
+      add("msg-time", "Your earlier demo copy expired. This is a fresh one.");
+    });
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       const text = input.value;
