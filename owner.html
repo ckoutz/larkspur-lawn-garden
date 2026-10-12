@@ -6,13 +6,14 @@
 <title>Owner view · Larkspur Lawn & Garden</title>
 <meta name="description" content="Fictional demo business: try Larkspur's owner dashboard, powered by Güd Office.">
 <meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://web-demo-5831.up.railway.app; base-uri 'self'; form-action 'self'">
 <link rel="icon" href="images/mark.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
 <link rel="stylesheet" href="css/site.css">
 </head>
-<body>
+<body data-no-launcher>
 <a class="skip" href="#main">Skip to content</a>
 <div class="topbar"><span>Serving the East Bay since 2009</span><span>Licensed &amp; insured</span><span>Free estimates, usually within 2 business days</span></div>
 <header class="wrap header">
@@ -31,21 +32,35 @@
     <a class="btn btn-primary" href="book.html">Book an estimate</a>
   </nav>
 </header>
-<main id="main" class="wrap owner">
-  <span class="chip">Powered by Güd Office</span>
-  <h1>Run Larkspur for a while</h1>
-  <p class="lede">This is the dashboard Larkspur's owner uses: requests waiting on them, the week's calendar, quotes and payments. You get your own copy, filled with a made-up week.</p>
-  <ol class="owner-steps">
-    <li><b>Book as a customer.</b> <a href="book.html">Chat with Gus</a> and pick a walk-through time.</li>
-    <li><b>Switch to the owner.</b> Your request is waiting under "Needs you". Approve it, and Gus tells the customer.</li>
-    <li><b>Click around.</b> Calendar, quotes, Mark paid. Nothing is sent to anyone.</li>
-  </ol>
-  <div class="owner-actions">
-    <button class="btn btn-primary btn-lg" type="button" data-owner-view aria-describedby="owner-view-status">Open the owner view</button>
-    <a class="btn btn-outline btn-lg" href="book.html">Chat with Gus first</a>
+<main id="main" class="split" data-pane="chat">
+  <div class="wrap split-intro">
+    <span class="chip">Powered by Güd Office</span>
+    <h1>Book as a customer, run it as the owner</h1>
+    <p class="lede">Chat with Gus as Sam Rivera and pick a walk-through time. Your request shows up in Larkspur's owner dashboard, under "Needs you". Approve it, and Gus tells Sam.</p>
+    <div class="split-tabs" role="group" aria-label="Show">
+      <button type="button" data-pane-tab="chat" aria-pressed="true">Chat</button>
+      <button type="button" data-pane-tab="dash" aria-pressed="false">Dashboard<span class="split-new" hidden> · new</span></button>
+    </div>
   </div>
-  <p class="notice error" id="owner-view-status" role="alert" hidden></p>
-  <p class="notice">Larkspur is a fictional business, and in the chat you play Sam Rivera, so you never type your own details. Your copy, and everything you typed, is deleted 2 hours after your last click. What you type to Gus is processed by an AI provider. Card payments are switched off: Mark paid only records a payment.</p>
+  <div class="wrap split-panes">
+    <section class="split-chat" aria-label="Chat with Gus, as the customer">
+      <div data-gus-inline></div>
+    </section>
+    <section class="split-dash" data-view="desktop" aria-label="Larkspur's owner dashboard">
+      <div class="split-bar">
+        <b>Owner dashboard</b>
+        <div class="split-views" role="group" aria-label="Dashboard size">
+          <button type="button" data-view-btn="desktop" aria-pressed="true">Computer</button>
+          <button type="button" data-view-btn="phone" aria-pressed="false">Phone</button>
+        </div>
+        <button type="button" class="split-link" data-split-refresh>Refresh</button>
+        <a class="split-link" href="/portal/owner" target="_blank" rel="noopener">Full page</a>
+      </div>
+      <p class="notice error" id="split-status" role="alert" hidden></p>
+      <div class="split-stage"><iframe data-split-frame title="Larkspur's owner dashboard" src="about:blank"></iframe></div>
+    </section>
+  </div>
+  <p class="wrap notice">Larkspur is a fictional business, and in the chat you play Sam Rivera, so you never type your own details. Your copy, and everything you typed, is deleted 2 hours after your last click. What you type to Gus is processed by an AI provider. Nothing is e-mailed or texted, and card payments are switched off: Mark paid only records a payment.</p>
 </main>
 <footer class="footer">
   <div class="wrap">
@@ -60,5 +75,6 @@
 <script src="js/sandbox.js"></script>
 <script src="js/site.js"></script>
 <script src="js/gus.js"></script>
+<script src="js/split.js"></script>
 </body>
 </html>

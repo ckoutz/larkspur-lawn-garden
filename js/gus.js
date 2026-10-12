@@ -145,6 +145,8 @@
       this.greeting = null;
       this.timer = null;
       this.build(`gus-${instance}`);
+      // The page asks for a fresh transcript, e.g. after the owner acted.
+      document.addEventListener("gus:refresh", () => this.poll());
       this.boot();
     }
 
@@ -363,6 +365,14 @@
 
     render() {
       this.root.dataset.intakeState = this.state;
+      // Tells the page (the split screen) when the request changes, so the
+      // owner dashboard next to the chat can reload.
+      const key = `${this.state}|${this.booking ? `${this.booking.status}|${this.booking.start}` : ""}`;
+      if (this.phase !== "booting" && key !== this.lastKey) {
+        const first = this.lastKey === undefined;
+        this.lastKey = key;
+        if (!first) document.dispatchEvent(new CustomEvent("gus:change", { detail: { state: this.state } }));
+      }
       const terminal = TERMINAL[this.state];
 
       if (this.booking && !terminal) {
