@@ -249,7 +249,7 @@
           return await api(`/v1/businesses/${enc(key)}/intake/conversations`, { method: "POST", body: {} });
         } catch (err) {
           if (!sandbox || attempt > 0 || !(err instanceof HttpError && err.status === 404)) throw err;
-          sandbox.forget();
+          sandbox.forget(key);
         }
       }
     }
@@ -431,7 +431,9 @@
           button.addEventListener("click", () => this.send(`${SLOT_PREFIX}${slot.start}`, slotLabel(slot)));
           grid.append(button);
         }
-        group.append(grid, el("p", "gus-note", `Times are Larkspur's local time${zone(new Date())}.`));
+        const zones = [...new Set(this.slots.map((slot) => zone(new Date(slot.start)).trim()))].filter(Boolean);
+        const zoneNote = zones.length ? ` ${zones.join(" / ")}` : "";
+        group.append(grid, el("p", "gus-note", `Times are Larkspur's local time${zoneNote}.`));
         nodes.push(group);
       }
       if (terminal && this.phase === "ready") {

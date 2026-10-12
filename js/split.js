@@ -71,9 +71,12 @@
   }
 
   async function reload() {
+    // A sign-in under way lands on the fresh dashboard; its link works only once.
+    if (signingIn) return;
     const sandbox = await window.LarkspurSandbox.ensure().catch(() => null);
     if (sandbox && recall(SIGNED_IN_FOR) !== sandbox.publicKey) return signIn();
-    if (framePath().startsWith("/portal")) frame.contentWindow.location.reload();
+    const path = framePath();
+    if (path.startsWith("/portal") && !path.startsWith("/portal/session")) frame.contentWindow.location.reload();
     else frame.src = OWNER;
   }
 

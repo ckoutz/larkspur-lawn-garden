@@ -71,7 +71,10 @@
   }
 
   // The copy was swept (idle too long): forget it so the next call makes a new one.
-  function forget() {
+  // Only that copy: if another caller already replaced it, keep the replacement.
+  function forget(publicKey) {
+    const saved = current || read();
+    if (publicKey && saved && saved.publicKey !== publicKey) return;
     current = null;
     write(null);
   }
@@ -88,7 +91,7 @@
       if (!sandbox) throw new SandboxError(404);
       const res = await post("/v1/demo/sandboxes/sign-in", sandbox.sandboxToken);
       if (res.status === 401) {
-        forget();
+        forget(sandbox.publicKey);
         continue;
       }
       if (!res.ok) throw new SandboxError(res.status);
