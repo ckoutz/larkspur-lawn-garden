@@ -214,23 +214,19 @@
       // A YES may have just changed the copy: show it on the dashboard.
       reload();
     }
-    let queued = "";
+    const queued = [];
     function setBusy(value) {
       busy = value;
       send.disabled = value;
       if (replay) replay.disabled = value;
-      if (!value && queued) {
-        const text = queued;
-        queued = "";
-        ask(text);
-      }
+      if (!value && queued.length) ask(queued.shift());
     }
     async function ask(text) {
       text = text.trim().slice(0, 500);
       if (!text) return;
       // Sent while a walkthrough step is still on its way: goes right after it.
       if (busy) {
-        queued = text;
+        if (queued.length < 5) queued.push(text);
         return;
       }
       setBusy(true);
@@ -277,7 +273,9 @@
           const reply = await window.LarkspurSandbox.ownerText(text, history.slice(-10));
           if (expect.test(reply)) return reply;
         } catch {
-          // asked once more, then the saved answer
+          // Asked once more, then the saved answer. A refusal (e.g. too many
+          // texts a minute) gets a short wait first, so the retry can land.
+          if (attempt === 0) await pause(10000);
         }
       }
       return null;
