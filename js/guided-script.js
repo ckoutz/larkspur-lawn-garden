@@ -49,6 +49,19 @@ window.LARKSPUR_GUIDED = [
       "Here's who owes you, with each invoice's due date: Grace Kim $6,200, Tom Whitaker $420, Luis Romero $310.",
   },
   {
+    text: "Block off Friday",
+    expect: /\bYES\b/,
+    fallback:
+      "I will block all day Friday on your booking calendar, so no customer can book it. Visits already booked stay as they are.\nReply YES in the next 10 minutes to do it, or NO to cancel it.",
+  },
+  {
+    text: "yes",
+    confirm: true,
+    expect: /done|blocked/i,
+    fallback:
+      "With a live YES, Gus answers: \"Done: blocked all day Friday\", and Friday shows as blocked on your calendar.",
+  },
+  {
     text: "Text Luis Romero: Running 15 minutes late, see you at 10:15.",
     expect: /word for word/i,
     fallback:
