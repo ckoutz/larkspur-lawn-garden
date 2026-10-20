@@ -349,6 +349,9 @@ button:disabled.btn { opacity: .6; cursor: default; }
 .msg.sent:last-of-type, .msg.sent + .msg.got, .msg.got + .msg.sent { margin-top: 6px; }
 .msg.typing { color: #8e8e93; letter-spacing: 2px; }
 .msg-delivered { align-self: flex-end; margin: 1px 4px 0; font-size: 11px; color: #8e8e93; }
+.msg-guide { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 14px; border-top: 1px solid #e5e5ea; font-size: 12px; color: #8e8e93; }
+.msg-guide button { min-height: 44px; padding: 0 4px; border: 0; background: none; color: #0a7cff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.msg-saved { margin: 2px 0 6px; font-size: 11px; color: #8e8e93; }
 .msg-chips { flex: none; display: flex; gap: 6px; overflow-x: auto; padding: 6px 12px; scrollbar-width: none; }
 .msg-chips::-webkit-scrollbar { display: none; }
 .msg-chips button { flex: none; padding: 6px 12px; border: 1px solid #d1d1d6; border-radius: 999px; background: #fff; color: #0a7cff; font: inherit; font-size: 13px; cursor: pointer; }
