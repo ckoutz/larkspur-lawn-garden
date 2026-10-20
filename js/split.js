@@ -135,8 +135,11 @@
     document.dispatchEvent(new CustomEvent("gus:refresh"));
   });
 
+  // The guided walkthrough starts the first time Texts is shown.
+  let autoplay = () => {};
   function setView(view) {
     box.dataset.view = view;
+    if (view === "texts") autoplay();
     document.querySelectorAll("[data-view-btn]").forEach((button) => {
       button.setAttribute("aria-pressed", String(button.dataset.viewBtn === view));
     });
@@ -194,31 +197,138 @@
       if (err && err.status === 503) return "Texts are off on the demo right now.";
       return "I couldn't answer just now. Please try again in a moment.";
     }
+    function begin(text) {
+      if (!list.querySelector(".msg")) add("msg-time", timeLabel(new Date()));
+      list.querySelectorAll(".msg-delivered").forEach((node) => node.remove());
+      add("msg sent", text);
+      const delivered = add("msg-delivered", "Delivered");
+      const typing = add("msg got typing", "\u2022\u2022\u2022");
+      return () => {
+        typing.remove();
+        delivered.remove();
+      };
+    }
+    function finish(text, reply) {
+      history.push({ role: "owner", text }, { role: "assistant", text: reply.slice(0, 1000) });
+      add("msg got", reply);
+      // A YES may have just changed the copy: show it on the dashboard.
+      reload();
+    }
     async function ask(text) {
       text = text.trim().slice(0, 500);
       if (!text || busy) return;
       busy = true;
       send.disabled = true;
-      if (!list.querySelector(".msg")) add("msg-time", timeLabel(new Date()));
-      list.querySelectorAll(".msg-delivered").forEach((node) => node.remove());
-      add("msg sent", text);
-      const delivered = add("msg-delivered", "Delivered");
-      const typing = add("msg got typing", "•••");
+      const done = begin(text);
       let reply;
+      let ok = true;
       try {
         reply = await window.LarkspurSandbox.ownerText(text, history.slice(-10));
-        history.push({ role: "owner", text }, { role: "assistant", text: reply.slice(0, 1000) });
       } catch (err) {
         reply = failure(err);
+        ok = false;
       }
-      typing.remove();
-      delivered.remove();
-      add("msg got", reply);
+      done();
+      if (ok) finish(text, reply);
+      else add("msg got", reply);
       busy = false;
       send.disabled = false;
-      // A YES may have just changed the copy: show it on the dashboard.
-      reload();
     }
+
+    // The guided walkthrough (js/guided-script.js): it texts Gus for real on
+    // the visitor's copy, retries an odd answer once, then shows the saved one.
+    const steps = window.LARKSPUR_GUIDED || [];
+    const guide = texts.querySelector("[data-guide]");
+    const guideStatus = guide && guide.querySelector("[data-guide-status]");
+    const replay = guide && guide.querySelector("[data-guide-replay]");
+    const intro = list.innerHTML;
+    let run = 0;
+    let played = false;
+    const pause = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+    const playing = (id) => id === run;
+    function guideSays(text) {
+      if (guideStatus) guideStatus.textContent = text;
+    }
+    function takeOver() {
+      if (!run || !guide || guide.dataset.state !== "playing") return;
+      run += 1;
+      busy = false;
+      send.disabled = false;
+      guide.dataset.state = "done";
+      guideSays("Your turn. Text Gus anything.");
+      input.placeholder = "Now try your own";
+    }
+    async function live(text, expect) {
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+          const reply = await window.LarkspurSandbox.ownerText(text, history.slice(-10));
+          if (expect.test(reply)) return reply;
+        } catch {
+          // asked once more, then the saved answer
+        }
+      }
+      return null;
+    }
+    async function typeOut(id, text) {
+      input.value = "";
+      for (const char of text) {
+        if (!playing(id)) return false;
+        input.value += char;
+        await pause(28);
+      }
+      await pause(250);
+      if (!playing(id)) return false;
+      input.value = "";
+      return true;
+    }
+    async function play() {
+      if (!steps.length || !guide) return;
+      const id = (run += 1);
+      played = true;
+      list.innerHTML = intro;
+      history.length = 0;
+      guide.dataset.state = "playing";
+      input.placeholder = "Type to take over";
+      let lastLive = false;
+      for (let i = 0; i < steps.length; i += 1) {
+        const step = steps[i];
+        guideSays(`Walkthrough ${i + 1} of ${steps.length}`);
+        if (!(await typeOut(id, step.text))) return;
+        busy = true;
+        send.disabled = true;
+        const done = begin(step.text);
+        // A YES to a change that was never set up live would only confuse Gus.
+        const reply = step.confirm && !lastLive ? null : await live(step.text, step.expect);
+        if (!playing(id)) {
+          done();
+          return;
+        }
+        done();
+        lastLive = reply !== null;
+        if (lastLive) finish(step.text, reply);
+        else {
+          add("msg got", step.fallback);
+          add("msg-saved", "Saved answer: the live one didn't come through.");
+        }
+        busy = false;
+        send.disabled = false;
+        await pause(1400);
+        if (!playing(id)) return;
+      }
+      guide.dataset.state = "done";
+      guideSays("Now try your own.");
+      input.placeholder = "Now try your own";
+    }
+    if (replay) replay.addEventListener("click", () => play());
+    // Typing, sending or a chip hands the conversation to the visitor.
+    input.addEventListener("keydown", (event) => {
+      if (event.isTrusted) takeOver();
+    });
+    input.addEventListener("pointerdown", takeOver);
+    autoplay = () => {
+      if (!played) play();
+    };
+
     // Earlier answers were about the deleted copy.
     document.addEventListener("larkspur:new-copy", () => {
       history.length = 0;
@@ -226,13 +336,18 @@
     });
     form.addEventListener("submit", (event) => {
       event.preventDefault();
+      takeOver();
       const text = input.value;
       input.value = "";
       ask(text);
     });
     texts.querySelectorAll("[data-texts-chips] button").forEach((chip) => {
-      chip.addEventListener("click", () => ask(chip.textContent));
+      chip.addEventListener("click", () => {
+        takeOver();
+        ask(chip.textContent);
+      });
     });
+    if (box.dataset.view === "texts") autoplay();
   }
 
   // The phones' status-bar clock, in Larkspur's time zone.
