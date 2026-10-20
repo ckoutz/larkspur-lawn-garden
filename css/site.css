@@ -42,6 +42,11 @@ button, input, textarea { font: inherit; }
 .btn-outline:hover { background: var(--chip); }
 .btn-lg { min-height: 60px; padding: 16px 30px; font-size: 18px; }
 
+/* Sample bar: this is a sample site, not a real business. */
+.samplebar { background: #121a15; color: #eef2ea; font-size: 14px; padding: 6px var(--gutter); display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 20px; }
+.samplebar a { color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; padding: 6px 0; }
+.samplebar .samplebar-cta { background: #f2c94c; color: #121a15; text-decoration: none; padding: 4px 14px; border-radius: 999px; }
+
 /* Top bar and header */
 .topbar { background: var(--green-dark); color: #e9f0e4; font-size: 14px; padding: 10px 24px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 32px; }
 .header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 20px; padding-bottom: 20px; }
@@ -51,6 +56,7 @@ button, input, textarea { font: inherit; }
 .nav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; font-weight: 500; }
 .nav a:not(.btn) { padding: 12px 0; }
 .nav a[aria-current="page"]:not(.btn) { color: var(--green); }
+.nav a.nav-owner:not(.btn), .mobile-nav a.nav-owner { background: var(--chip); color: var(--green-dark); font-weight: 700; padding: 10px 16px; border-radius: 999px; }
 .menu-btn { display: none; width: 44px; height: 44px; border: 0; border-radius: 12px; background: var(--chip); align-items: center; justify-content: center; cursor: pointer; }
 .header-actions { display: none; align-items: center; gap: 6px; }
 .mobile-nav { display: none; }
@@ -385,4 +391,13 @@ button:disabled.btn { opacity: .6; cursor: default; }
   .split-dash :is(.iphone-btn, .iphone-status, .iphone-home) { display: none; }
   .split-dash .iphone-app { padding-bottom: 0; }
   .split-dash .iphone-texts { padding-bottom: 0; }
+}
+
+/* The end of the owner side, and tap-to-call in the footer on phones */
+.owner-cta { padding-top: 28px; padding-bottom: 56px; font-size: 18px; font-weight: 700; color: var(--ink); }
+.owner-cta a { color: var(--green-dark); text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 767px) {
+  .samplebar { font-size: 13px; gap: 0 14px; }
+  .mobile-nav a.nav-owner { padding: 14px; border-radius: 12px; }
+  .footer a.tel { color: var(--bg); text-decoration: underline; text-underline-offset: 3px; display: inline-flex; min-height: 44px; align-items: center; }
 }
