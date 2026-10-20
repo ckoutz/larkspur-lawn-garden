@@ -251,9 +251,8 @@
     }
     function takeOver() {
       if (!run || !guide || guide.dataset.state !== "playing") return;
+      // A request already on its way still lands; only the next steps stop.
       run += 1;
-      busy = false;
-      send.disabled = false;
       guide.dataset.state = "done";
       guideSays("Your turn. Text Gus anything.");
       input.placeholder = "Now try your own";
@@ -299,16 +298,12 @@
         const done = begin(step.text);
         // A YES to a change that was never set up live would only confuse Gus.
         const reply = step.confirm && !lastLive ? null : await live(step.text, step.expect);
-        if (!playing(id)) {
-          done();
-          return;
-        }
         done();
         lastLive = reply !== null;
         if (lastLive) finish(step.text, reply);
         else {
           add("msg got", step.fallback);
-          add("msg-saved", "Saved answer: the live one didn't come through.");
+          add("msg-saved", "Saved example: the live answer didn't come through, so this step didn't change your copy.");
         }
         busy = false;
         send.disabled = false;
@@ -325,8 +320,9 @@
       if (event.isTrusted) takeOver();
     });
     input.addEventListener("pointerdown", takeOver);
+    // Only once Texts is on screen: a hidden walkthrough would spend texts.
     autoplay = () => {
-      if (!played) play();
+      if (!played && texts.getClientRects().length > 0) play();
     };
 
     // Earlier answers were about the deleted copy.
