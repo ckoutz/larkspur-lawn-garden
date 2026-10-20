@@ -266,6 +266,8 @@
       guide.dataset.state = "done";
       guideSays("Your turn. Text Gus anything.");
       input.placeholder = "Now try your own";
+      // Drop a half-typed walkthrough text; keydown runs before the visitor's key lands.
+      input.value = "";
     }
     // The live reply; null for an odd answer; undefined when Gus can't be reached.
     async function live(text, expect) {
