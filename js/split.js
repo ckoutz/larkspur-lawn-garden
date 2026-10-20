@@ -214,11 +214,26 @@
       // A YES may have just changed the copy: show it on the dashboard.
       reload();
     }
+    let queued = "";
+    function setBusy(value) {
+      busy = value;
+      send.disabled = value;
+      if (replay) replay.disabled = value;
+      if (!value && queued) {
+        const text = queued;
+        queued = "";
+        ask(text);
+      }
+    }
     async function ask(text) {
       text = text.trim().slice(0, 500);
-      if (!text || busy) return;
-      busy = true;
-      send.disabled = true;
+      if (!text) return;
+      // Sent while a walkthrough step is still on its way: goes right after it.
+      if (busy) {
+        queued = text;
+        return;
+      }
+      setBusy(true);
       const done = begin(text);
       let reply;
       let ok = true;
@@ -231,8 +246,7 @@
       done();
       if (ok) finish(text, reply);
       else add("msg got", reply);
-      busy = false;
-      send.disabled = false;
+      setBusy(false);
     }
 
     // The guided walkthrough (js/guided-script.js): it texts Gus for real on
@@ -293,8 +307,7 @@
         const step = steps[i];
         guideSays(`Walkthrough ${i + 1} of ${steps.length}`);
         if (!(await typeOut(id, step.text))) return;
-        busy = true;
-        send.disabled = true;
+        setBusy(true);
         const done = begin(step.text);
         // A YES to a change that was never set up live would only confuse Gus.
         const reply = step.confirm && !lastLive ? null : await live(step.text, step.expect);
@@ -305,8 +318,7 @@
           add("msg got", step.fallback);
           add("msg-saved", "Saved example: the live answer didn't come through, so this step didn't change your copy.");
         }
-        busy = false;
-        send.disabled = false;
+        setBusy(false);
         await pause(1400);
         if (!playing(id)) return;
       }
@@ -314,7 +326,10 @@
       guideSays("Now try your own.");
       input.placeholder = "Now try your own";
     }
-    if (replay) replay.addEventListener("click", () => play());
+    // Disabled while a reply is on its way, so an old reply never lands in a replay.
+    if (replay) replay.addEventListener("click", () => {
+      if (!busy) play();
+    });
     // Typing, sending or a chip hands the conversation to the visitor.
     input.addEventListener("keydown", (event) => {
       if (event.isTrusted) takeOver();
@@ -324,6 +339,8 @@
     autoplay = () => {
       if (!played && texts.getClientRects().length > 0) play();
     };
+    // Also when Texts appears without a view change, e.g. a phone turned wide.
+    if ("ResizeObserver" in window) new ResizeObserver(() => autoplay()).observe(texts);
 
     // Earlier answers were about the deleted copy.
     document.addEventListener("larkspur:new-copy", () => {
