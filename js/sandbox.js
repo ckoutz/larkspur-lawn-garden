@@ -113,8 +113,8 @@
     throw new SandboxError(401);
   }
 
-  // The demo's Texts view: the owner texts Gus about their own copy. Read only;
-  // nothing is texted.
+  // The demo's Texts view: the owner texts Gus about their own copy. Changes
+  // land on the copy after YES; nothing is texted.
   async function ownerText(text, history) {
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const sandbox = await ensure();

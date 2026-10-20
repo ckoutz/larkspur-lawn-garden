@@ -216,6 +216,8 @@
       add("msg got", reply);
       busy = false;
       send.disabled = false;
+      // A YES may have just changed the copy: show it on the dashboard.
+      reload();
     }
     // Earlier answers were about the deleted copy.
     document.addEventListener("larkspur:new-copy", () => {
