@@ -319,6 +319,7 @@
         this.state = res.state;
         this.slots = res.slots;
         this.booking = res.booking || null;
+        this.declineReason = res.declineReason || null;
         if (res.reply) this.messages.push({ role: "agent", content: res.reply });
         // Keep the offered times in the transcript once one is picked.
         if (echoed.pick && previousSlots) {
