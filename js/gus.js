@@ -295,6 +295,7 @@
       this.state = view.state;
       this.slots = view.slots;
       this.booking = view.booking || null;
+      this.declineReason = view.declineReason || null;
       this.messages = mapMessages(view.messages);
     }
 
@@ -318,6 +319,7 @@
         this.state = res.state;
         this.slots = res.slots;
         this.booking = res.booking || null;
+        this.declineReason = res.declineReason || null;
         if (res.reply) this.messages.push({ role: "agent", content: res.reply });
         // Keep the offered times in the transcript once one is picked.
         if (echoed.pick && previousSlots) {
@@ -351,6 +353,7 @@
       this.messages = [];
       this.slots = null;
       this.booking = null;
+      this.declineReason = null;
       this.greeting = null;
       this.consent.checked = false;
       writeConsent(false);
@@ -478,7 +481,12 @@
         nodes.push(group);
       }
       if (terminal && this.phase === "ready") {
-        nodes.push(this.card(terminal.title, terminal.body, "Start a new conversation"));
+        const card = this.card(terminal.title, terminal.body, "Start a new conversation");
+        // The owner's own words when they declined, as the customer's e-mail has them.
+        if (this.state === "declined" && this.declineReason) {
+          card.querySelector("p").before(el("p", "gus-note-owner", `Larkspur's note: “${this.declineReason}”`));
+        }
+        nodes.push(card);
       }
       if (this.phase === "expired") {
         nodes.push(this.card("This conversation expired.", "Conversations last a day.", "Start over"));
