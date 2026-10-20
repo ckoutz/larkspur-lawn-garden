@@ -226,7 +226,7 @@
       if (!text) return;
       // Sent while a walkthrough step is still on its way: goes right after it.
       if (busy) {
-        if (queued.length < 5) queued.push(text);
+        queued.push(text);
         return;
       }
       setBusy(true);
@@ -267,18 +267,20 @@
       guideSays("Your turn. Text Gus anything.");
       input.placeholder = "Now try your own";
     }
+    // The live reply; null for an odd answer; undefined when Gus can't be reached.
     async function live(text, expect) {
+      let reached = false;
       for (let attempt = 0; attempt < 2; attempt += 1) {
         try {
           const reply = await window.LarkspurSandbox.ownerText(text, history.slice(-10));
+          reached = true;
           if (expect.test(reply)) return reply;
         } catch {
-          // Asked once more, then the saved answer. A refusal (e.g. too many
-          // texts a minute) gets a short wait first, so the retry can land.
+          // A refusal (e.g. too many texts a minute) gets a short wait, so the retry can land.
           if (attempt === 0) await pause(10000);
         }
       }
-      return null;
+      return reached ? null : undefined;
     }
     async function typeOut(id, text) {
       input.value = "";
@@ -301,6 +303,8 @@
       guide.dataset.state = "playing";
       input.placeholder = "Type to take over";
       let lastLive = false;
+      // Once Gus can't be reached, the rest of the run shows saved answers at once.
+      let offline = false;
       for (let i = 0; i < steps.length; i += 1) {
         const step = steps[i];
         guideSays(`Walkthrough ${i + 1} of ${steps.length}`);
@@ -308,9 +312,10 @@
         setBusy(true);
         const done = begin(step.text);
         // A YES to a change that was never set up live would only confuse Gus.
-        const reply = step.confirm && !lastLive ? null : await live(step.text, step.expect);
+        const reply = offline || (step.confirm && !lastLive) ? null : await live(step.text, step.expect);
+        if (reply === undefined) offline = true;
         done();
-        lastLive = reply !== null;
+        lastLive = typeof reply === "string";
         if (lastLive) finish(step.text, reply);
         else {
           add("msg got", step.fallback);
