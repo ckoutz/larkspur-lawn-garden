@@ -199,6 +199,7 @@ button, input, textarea { font: inherit; }
 .gus-card { margin-top: 4px; border: 1px solid var(--field); border-radius: 14px; padding: 14px 16px; background: var(--bg); }
 .gus-card b { display: block; font-family: var(--display); font-size: 18px; }
 .gus-card p { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.gus-card p.gus-note-owner { color: var(--ink); font-size: 15px; }
 .gus-link { margin-top: 8px; padding: 0; border: 0; background: none; color: var(--green-dark); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; min-height: 44px; }
 .gus-error { font-size: 14px; color: #8a2a1b; }
 .gus-form { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); }
