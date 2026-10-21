@@ -340,9 +340,7 @@
         await pause(55);
       }
       await pause(600);
-      if (!playing(id)) return false;
-      input.value = "";
-      return true;
+      return playing(id);
     }
     async function play() {
       if (!steps.length || !guide) return;
@@ -365,6 +363,11 @@
         // Next waits for the reply; setBusy(false) turns it back on.
         if (guideNext) guideNext.disabled = true;
         if (!(await typeOut(id, step.text))) return;
+        // Paused while it was typed: hold it unsent until Play or Next.
+        if (guideNext) guideNext.disabled = false;
+        if (!(await hold(id, 0))) return;
+        input.value = "";
+        if (guideNext) guideNext.disabled = true;
         setBusy(true);
         const done = begin(step.text);
         // A YES to a change that was never set up live would only confuse Gus.
