@@ -312,13 +312,14 @@
       if (!run || !guide || guide.dataset.state !== "playing") return;
       // A request already on its way still lands; only the next steps stop.
       run += 1;
-      held = "";
       guide.dataset.state = "done";
       showControls(false);
       guideSays("Your turn. Text Gus anything.");
       input.placeholder = "Now try your own";
-      // Drop a half-typed walkthrough text; keydown runs before the visitor's key lands.
-      input.value = "";
+      // Drop a half-typed walkthrough text (keydown runs before the visitor's key lands),
+      // but keep a held, fully typed one: it is the visitor's to edit or send.
+      if (!held) input.value = "";
+      held = "";
     }
     // The live reply; null for an odd answer; undefined when Gus can't be reached.
     async function live(text, expect) {
@@ -427,10 +428,8 @@
     });
     form.addEventListener("submit", (event) => {
       event.preventDefault();
-      // Sending a held walkthrough text sends it as the visitor's own.
-      const pending = held;
       takeOver();
-      const text = pending || input.value;
+      const text = input.value;
       input.value = "";
       ask(text);
     });
