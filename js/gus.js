@@ -7,7 +7,7 @@
   const POLL_MS = 10000;
   const SLOT_PREFIX = "slot:";
   const SMS_COPY =
-    "Text me updates about my booking and quote at the number I provide (msg & data rates may apply, reply STOP to opt out)";
+    "Text me booking and quote updates from Larkspur Lawn & Garden at the number I provide. Message frequency varies, usually 1–5 texts per booking or quote. Msg & data rates may apply. Reply HELP for help, STOP to opt out.";
 
   const TERMINAL = {
     declined: {
