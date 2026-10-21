@@ -263,11 +263,10 @@
       if (guideStatus) guideStatus.textContent = text;
     }
     // Pacing: a beat before each step, Gus "typing" for a moment, then the
-    // reply stays up long enough to read. Pause holds at the next reply;
+    // reply stays up long enough to read. Pause holds on the reply on screen;
     // Next skips the wait, and while paused plays exactly one more step.
     let paused = false;
     let skip = false;
-    let through = false;
     let stepLabel = "";
     function showStep() {
       guideSays(paused ? `${stepLabel} \u00b7 Paused` : stepLabel);
@@ -282,21 +281,23 @@
     }
     function showControls(on) {
       if (guidePause) guidePause.hidden = !on;
-      if (guideNext) guideNext.hidden = !on;
+      if (guideNext) {
+        guideNext.hidden = !on;
+        guideNext.disabled = busy;
+      }
     }
     function readTime(text) {
       const words = text.split(/\s+/).filter(Boolean).length;
       const longer = /\bYES\b|\n|\u2022/.test(text) ? 2500 : 0;
       return Math.min(16000, Math.max(3000, 1000 + words * 260) + longer);
     }
-    // Waits `ms` of unpaused time; false once the walkthrough has stopped.
+    // Waits `ms`; a reading hold also waits while paused. False once stopped.
     async function hold(id, ms, reading) {
-      if (reading) through = false;
       skip = false;
       let left = ms;
-      while (playing(id) && !skip && ((paused && !through) || left > 0)) {
+      while (playing(id) && !skip && ((reading && paused) || left > 0)) {
         await pause(100);
-        if (!paused || through) left -= 100;
+        if (!reading || !paused) left -= 100;
       }
       skip = false;
       return playing(id);
@@ -357,6 +358,8 @@
         stepLabel = `Step ${i + 1} of ${steps.length}`;
         showStep();
         if (!(await hold(id, 1500))) return;
+        // Next waits for the reply; setBusy(false) turns it back on.
+        if (guideNext) guideNext.disabled = true;
         if (!(await typeOut(id, step.text))) return;
         setBusy(true);
         const done = begin(step.text);
@@ -389,7 +392,6 @@
     if (guideNext) guideNext.addEventListener("click", () => {
       if (busy) return;
       skip = true;
-      if (paused) through = true;
     });
     // Typing, sending or a chip hands the conversation to the visitor.
     input.addEventListener("keydown", (event) => {
