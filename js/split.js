@@ -274,6 +274,7 @@
     }
     function setPaused(value) {
       paused = value;
+      through = false;
       if (guidePause) {
         guidePause.textContent = value ? "Play" : "Pause";
         guidePause.setAttribute("aria-pressed", String(value));
