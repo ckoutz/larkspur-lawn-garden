@@ -269,6 +269,8 @@
     let skip = false;
     let through = false;
     let stepLabel = "";
+    // A walkthrough text typed out while paused, waiting in the box unsent.
+    let held = "";
     function showStep() {
       guideSays(paused ? `${stepLabel} \u00b7 Paused` : stepLabel);
     }
@@ -314,8 +316,10 @@
       showControls(false);
       guideSays("Your turn. Text Gus anything.");
       input.placeholder = "Now try your own";
-      // Drop a half-typed walkthrough text; keydown runs before the visitor's key lands.
-      input.value = "";
+      // Drop a half-typed walkthrough text (keydown runs before the visitor's key lands),
+      // but keep a held, fully typed one: it is the visitor's to edit or send.
+      if (!held) input.value = "";
+      held = "";
     }
     // The live reply; null for an odd answer; undefined when Gus can't be reached.
     async function live(text, expect) {
@@ -340,14 +344,14 @@
         await pause(55);
       }
       await pause(600);
-      if (!playing(id)) return false;
-      input.value = "";
-      return true;
+      return playing(id);
     }
     async function play() {
       if (!steps.length || !guide) return;
       const id = (run += 1);
       played = true;
+      held = "";
+      input.value = "";
       list.innerHTML = intro;
       history.length = 0;
       guide.dataset.state = "playing";
@@ -365,6 +369,13 @@
         // Next waits for the reply; setBusy(false) turns it back on.
         if (guideNext) guideNext.disabled = true;
         if (!(await typeOut(id, step.text))) return;
+        // Paused while it was typed: hold it unsent until Play or Next.
+        if (guideNext) guideNext.disabled = false;
+        held = step.text;
+        if (!(await hold(id, 0))) return;
+        held = "";
+        input.value = "";
+        if (guideNext) guideNext.disabled = true;
         setBusy(true);
         const done = begin(step.text);
         // A YES to a change that was never set up live would only confuse Gus.
@@ -424,7 +435,10 @@
     });
     texts.querySelectorAll("[data-texts-chips] button").forEach((chip) => {
       chip.addEventListener("click", () => {
+        // A chip replaces a held walkthrough text; a visitor's own draft stays.
+        const wasHeld = held;
         takeOver();
+        if (wasHeld) input.value = "";
         ask(chip.textContent);
       });
     });
