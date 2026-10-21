@@ -435,7 +435,10 @@
     });
     texts.querySelectorAll("[data-texts-chips] button").forEach((chip) => {
       chip.addEventListener("click", () => {
+        // A chip replaces a held walkthrough text; a visitor's own draft stays.
+        const wasHeld = held;
         takeOver();
+        if (wasHeld) input.value = "";
         ask(chip.textContent);
       });
     });
