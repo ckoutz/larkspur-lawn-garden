@@ -263,10 +263,11 @@
       if (guideStatus) guideStatus.textContent = text;
     }
     // Pacing: a beat before each step, Gus "typing" for a moment, then the
-    // reply stays up long enough to read. Pause holds on the reply on screen;
-    // Next skips the wait, and while paused plays exactly one more step.
+    // reply stays up long enough to read. Pause stops before the next text is
+    // sent; Next skips the wait, and while paused plays exactly one more step.
     let paused = false;
     let skip = false;
+    let through = false;
     let stepLabel = "";
     function showStep() {
       guideSays(paused ? `${stepLabel} \u00b7 Paused` : stepLabel);
@@ -291,13 +292,15 @@
       const longer = /\bYES\b|\n|\u2022/.test(text) ? 2500 : 0;
       return Math.min(16000, Math.max(3000, 1000 + words * 260) + longer);
     }
-    // Waits `ms`; a reading hold also waits while paused. False once stopped.
+    // Waits `ms` of unpaused time; false once the walkthrough has stopped.
+    // A reading hold ends the one step that Next plays while paused.
     async function hold(id, ms, reading) {
+      if (reading) through = false;
       skip = false;
       let left = ms;
-      while (playing(id) && !skip && ((reading && paused) || left > 0)) {
+      while (playing(id) && !skip && ((paused && !through) || left > 0)) {
         await pause(100);
-        if (!reading || !paused) left -= 100;
+        if (!paused || through) left -= 100;
       }
       skip = false;
       return playing(id);
@@ -392,6 +395,7 @@
     if (guideNext) guideNext.addEventListener("click", () => {
       if (busy) return;
       skip = true;
+      if (paused) through = true;
     });
     // Typing, sending or a chip hands the conversation to the visitor.
     input.addEventListener("keydown", (event) => {
