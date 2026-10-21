@@ -269,6 +269,8 @@
     let skip = false;
     let through = false;
     let stepLabel = "";
+    // A walkthrough text typed out while paused, waiting in the box unsent.
+    let held = "";
     function showStep() {
       guideSays(paused ? `${stepLabel} \u00b7 Paused` : stepLabel);
     }
@@ -310,6 +312,7 @@
       if (!run || !guide || guide.dataset.state !== "playing") return;
       // A request already on its way still lands; only the next steps stop.
       run += 1;
+      held = "";
       guide.dataset.state = "done";
       showControls(false);
       guideSays("Your turn. Text Gus anything.");
@@ -346,6 +349,8 @@
       if (!steps.length || !guide) return;
       const id = (run += 1);
       played = true;
+      held = "";
+      input.value = "";
       list.innerHTML = intro;
       history.length = 0;
       guide.dataset.state = "playing";
@@ -365,7 +370,9 @@
         if (!(await typeOut(id, step.text))) return;
         // Paused while it was typed: hold it unsent until Play or Next.
         if (guideNext) guideNext.disabled = false;
+        held = step.text;
         if (!(await hold(id, 0))) return;
+        held = "";
         input.value = "";
         if (guideNext) guideNext.disabled = true;
         setBusy(true);
@@ -420,8 +427,10 @@
     });
     form.addEventListener("submit", (event) => {
       event.preventDefault();
+      // Sending a held walkthrough text sends it as the visitor's own.
+      const pending = held;
       takeOver();
-      const text = input.value;
+      const text = pending || input.value;
       input.value = "";
       ask(text);
     });
