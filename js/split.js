@@ -219,6 +219,7 @@
       busy = value;
       send.disabled = value;
       if (replay) replay.disabled = value;
+      if (guideNext) guideNext.disabled = value;
       if (!value && queued.length) ask(queued.shift());
     }
     async function ask(text) {
@@ -251,6 +252,8 @@
     const guide = texts.querySelector("[data-guide]");
     const guideStatus = guide && guide.querySelector("[data-guide-status]");
     const replay = guide && guide.querySelector("[data-guide-replay]");
+    const guidePause = guide && guide.querySelector("[data-guide-pause]");
+    const guideNext = guide && guide.querySelector("[data-guide-next]");
     const intro = list.innerHTML;
     let run = 0;
     let played = false;
@@ -259,11 +262,56 @@
     function guideSays(text) {
       if (guideStatus) guideStatus.textContent = text;
     }
+    // Pacing: a beat before each step, Gus "typing" for a moment, then the
+    // reply stays up long enough to read. Pause stops before the next text is
+    // sent; Next skips the wait, and while paused plays exactly one more step.
+    let paused = false;
+    let skip = false;
+    let through = false;
+    let stepLabel = "";
+    function showStep() {
+      guideSays(paused ? `${stepLabel} \u00b7 Paused` : stepLabel);
+    }
+    function setPaused(value) {
+      paused = value;
+      through = false;
+      if (guidePause) {
+        guidePause.textContent = value ? "Play" : "Pause";
+        guidePause.setAttribute("aria-pressed", String(value));
+      }
+      showStep();
+    }
+    function showControls(on) {
+      if (guidePause) guidePause.hidden = !on;
+      if (guideNext) {
+        guideNext.hidden = !on;
+        guideNext.disabled = busy;
+      }
+    }
+    function readTime(text) {
+      const words = text.split(/\s+/).filter(Boolean).length;
+      const longer = /\bYES\b|\n|\u2022/.test(text) ? 2500 : 0;
+      return Math.min(16000, Math.max(3000, 1000 + words * 260) + longer);
+    }
+    // Waits `ms` of unpaused time; false once the walkthrough has stopped.
+    // A reading hold ends the one step that Next plays while paused.
+    async function hold(id, ms, reading) {
+      if (reading) through = false;
+      skip = false;
+      let left = ms;
+      while (playing(id) && !skip && ((paused && !through) || left > 0)) {
+        await pause(100);
+        if (!paused || through) left -= 100;
+      }
+      skip = false;
+      return playing(id);
+    }
     function takeOver() {
       if (!run || !guide || guide.dataset.state !== "playing") return;
       // A request already on its way still lands; only the next steps stop.
       run += 1;
       guide.dataset.state = "done";
+      showControls(false);
       guideSays("Your turn. Text Gus anything.");
       input.placeholder = "Now try your own";
       // Drop a half-typed walkthrough text; keydown runs before the visitor's key lands.
@@ -289,9 +337,9 @@
       for (const char of text) {
         if (!playing(id)) return false;
         input.value += char;
-        await pause(28);
+        await pause(55);
       }
-      await pause(250);
+      await pause(600);
       if (!playing(id)) return false;
       input.value = "";
       return true;
@@ -303,18 +351,27 @@
       list.innerHTML = intro;
       history.length = 0;
       guide.dataset.state = "playing";
+      showControls(true);
+      setPaused(false);
       input.placeholder = "Type to take over";
       let lastLive = false;
       // Once Gus can't be reached, the rest of the run shows saved answers at once.
       let offline = false;
       for (let i = 0; i < steps.length; i += 1) {
         const step = steps[i];
-        guideSays(`Walkthrough ${i + 1} of ${steps.length}`);
+        stepLabel = `Step ${i + 1} of ${steps.length}`;
+        showStep();
+        if (!(await hold(id, 1500))) return;
+        // Next waits for the reply; setBusy(false) turns it back on.
+        if (guideNext) guideNext.disabled = true;
         if (!(await typeOut(id, step.text))) return;
         setBusy(true);
         const done = begin(step.text);
         // A YES to a change that was never set up live would only confuse Gus.
-        const reply = offline || (step.confirm && !lastLive) ? null : await live(step.text, step.expect);
+        const [reply] = await Promise.all([
+          offline || (step.confirm && !lastLive) ? null : live(step.text, step.expect),
+          pause(1600),
+        ]);
         if (reply === undefined) offline = true;
         done();
         lastLive = typeof reply === "string";
@@ -324,16 +381,22 @@
           add("msg-saved", "Saved example: the live answer didn't come through, so this step didn't change your copy.");
         }
         setBusy(false);
-        await pause(1400);
-        if (!playing(id)) return;
+        if (!(await hold(id, readTime(lastLive ? reply : step.fallback), true))) return;
       }
       guide.dataset.state = "done";
+      showControls(false);
       guideSays("Now try your own.");
       input.placeholder = "Now try your own";
     }
     // Disabled while a reply is on its way, so an old reply never lands in a replay.
     if (replay) replay.addEventListener("click", () => {
       if (!busy) play();
+    });
+    if (guidePause) guidePause.addEventListener("click", () => setPaused(!paused));
+    if (guideNext) guideNext.addEventListener("click", () => {
+      if (busy) return;
+      skip = true;
+      if (paused) through = true;
     });
     // Typing, sending or a chip hands the conversation to the visitor.
     input.addEventListener("keydown", (event) => {
